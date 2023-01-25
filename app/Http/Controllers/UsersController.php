@@ -4,20 +4,21 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class UsersController extends Controller
 {
-    function save(Request $request){
+    function SaveUser(Request $request){
 
         try{
            
-       $user = new users;
-       $users->name =$request->input('nom');
-       $users->surname =$request->input('prenom');
+       $users = new users;
+       $users->name =$request->input('name');
+       $users->surname =$request->input('surname');
        $users->apogee =$request->input('apogee');
        $users->filiere =$request->input('filiere');
        $users->email =$request->input('email');
        $users->password = Hash::make($request->input('password'));
-       $users->save();
+       $users->SaveUser();
+       echo 'Bonjour à tous !<br>'; 
        
 
 
