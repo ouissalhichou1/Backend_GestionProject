@@ -10,4 +10,12 @@ class File extends Model
     use HasFactory;
     protected $fillable = ['id', 'lettre_motivation', 'cv'];
     protected $table = 'file';
+
+    public function Demande()
+    {
+        return $this->belongsTo(Demande::class);
+    }
+
+
+    
 }

@@ -10,12 +10,9 @@ use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
-
-
-    function SaveUser2(Request $request){
+    function SaveProfessor(Request $request){
 
         try{
-
             $users = new User;
             $users->name =$request->input('name');
             $users->surname =$request->input('surname');
@@ -24,65 +21,82 @@ class UsersController extends Controller
             $users->email =$request->input('email');
             $users->password = Hash::make($request->input('password'));
             $users->save();
-            $role_users = new RoleUser;
-            $role_users->id_user = ;
-            $role_users->id_role ;
-            $role_users->save();
-    
+            $users->roles()->attach([2,3]);
+            
+
            return response()->json([
           'status'=>200,
-          'message'=>'ensigant a ete bien enregistrer',
+          'message'=>'ensignant a ete bien enregistrer',
        ]);
        }
    
        catch(QueryException $e){
            //$arr = explode(':', $e->getMessage());
            //$arr2 = explode(" ", $arr[2])[7];
-       return response()->json([
+           return response()->json([
            'status'=>1020,
            //'message'=>$arr2,
            'message'=>$e->getMessage()
-        ]);
+           ]);
+        }
+    }
 
-   }
-}
+    function SaveStudent(Request $request){
 
+        try{
 
-function SaveUser3(Request $request){
+            $users = new User;
+            $users->name =$request->input('name');
+            $users->surname =$request->input('surname');
+            $users->apogee =$request->input('apogee');
+            $users->filiere =$request->input('filiere');
+            $users->email =$request->input('email');
+            $users->password = Hash::make($request->input('password'));
+            $users->save();
+            $users->roles()->attach([2,4]);
+   
+         return response()->json([
+            'status'=>200,
+            'message'=>' etudiant a ete bien enregistrer',
+          ]);
+        }   
+        catch(QueryException $e){
+            //$arr = explode(':', $e->getMessage());
+            //$arr2 = explode(" ", $arr[2])[7];
+           return response()->json([
+           'status'=>1020,
+           //'message'=>$arr2,
+            'message'=>$e->getMessage()
+           ]);
 
-    try{
-
-   $users = new User;
-   $users->name =$request->input('name');
-   $users->surname =$request->input('surname');
-   $users->apogee =$request->input('apogee');
-   $users->filiere =$request->input('filiere');
-   $users->email =$request->input('email');
-   $users->password = Hash::make($request->input('password'));
-   $users->save();
+        }
+    }
    
 
+    function listUsers(Request $request){
 
-   return response()->json([
-      'status'=>200,
-      'message'=>' etudiant a ete bien enregistrer',
-   ]);
-   }
-
-   catch(QueryException $e){
-       //$arr = explode(':', $e->getMessage());
-       //$arr2 = explode(" ", $arr[2])[7];
-   return response()->json([
-       'status'=>1020,
-       //'message'=>$arr2,
-       'message'=>$e->getMessage()
-    ]);
-
-}
-}
+       return User::all();
+    }
    
+    function UserProfile(Request $request){
 
-   function listUsers(){
-       return Users::all();
-   }
+       $user =  User::find($request->id);
+       if ($user) {
+         return response()->json([
+         'status'=>200,
+         'message'=>'etudiant trouvé',
+         'data' => $user
+          ]);
+        }
+       else{
+          return response()->json([
+         'status'=>204,
+          'message'=>'aucun étudiant trouvé',
+          ]);
+        }
+    }
+    
+
+
+
 }

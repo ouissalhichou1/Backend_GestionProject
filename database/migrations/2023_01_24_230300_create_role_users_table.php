@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('role_users', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('id_user')->unsigned();
-            $table->foreign('id_user')->references('id')->on('users');
-            $table->integer('id_role')->unsigned();
-            $table->foreign('id_role')->references('id')->on('roles');
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->integer('role_id')->unsigned();
+            $table->foreign('role_id')->references('id')->on('roles');
             $table->timestamps();
         });
     }

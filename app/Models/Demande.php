@@ -10,7 +10,11 @@ class Demande extends Model
     use HasFactory;
     protected $fillable = ['id','id_files', 'id_etudiant', 'id_projet'];
     protected $table = 'demandes';
-
+    
+    public function User()
+    {
+        return $this->belongsTo(User::class);
+    }
     
 
 }
