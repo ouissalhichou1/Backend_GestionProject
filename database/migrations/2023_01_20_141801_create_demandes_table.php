@@ -14,13 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('demandes', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('id_files')->unsigned();
-            $table->foreign('id_files')->references('id')->on('file');
-            $table->integer('id_user')->unsigned();
-            $table->foreign('id_user')->references('id')->on('users');
+            $table->increments('id_demande');
+            $table->integer('id_group')->unsigned();
+            $table->foreign('id_group')->references('id_group')->on('group');
             $table->integer('id_projet')->unsigned();
-            $table->foreign('id_projet')->references('id')->on('projects');
+            $table->foreign('id_projet')->references('id_project')->on('projects');
             $table->timestamps();
         });
     }

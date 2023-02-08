@@ -2,19 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Demande extends Model
+class Demande extends Pivot
 {
     use HasFactory;
-    protected $fillable = ['id','id_files', 'id_etudiant', 'id_projet'];
+    protected $fillable = ['id_demande','id_group', 'id_projet'];
     protected $table = 'demandes';
     
-    public function User()
-    {
-        return $this->belongsTo(User::class);
-    }
+    
     
 
 }

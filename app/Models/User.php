@@ -12,31 +12,30 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['id','name','surname','email', 'password','code', 'specialite','apogee', 'filiere'];
+    protected $fillable = ['id_user','name','surname','email', 'password','code', 'specialite','apogee', 'filiere'];
     protected $table = 'users';
-
-
 
     public function roles()
     {
         return $this->belongsToMany('App\Models\Role','role_users');
+    
+    }
+    public function Project()
+    {
+        return $this->hasMany(Project::class);
+    }
+    public function file()
+    {
+        return $this->hasOne(file::class);
     }
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
+    
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];

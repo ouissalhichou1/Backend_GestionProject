@@ -8,13 +8,13 @@ use Illuminate\Database\QueryException;
 
 class ProjectsController extends Controller
 {
-    function SaveProject(Request $request){
-        echo 'hello';
+    function SaveProject(Request $request,$id){
 
         try{
             $projects = new Project;
             $projects->sujet =$request->input('sujet');
             $projects->filiere =$request->input('filiere');
+            $projects->use =$request;
             $projects->description =$request->input('description');
             $projects->save();
             

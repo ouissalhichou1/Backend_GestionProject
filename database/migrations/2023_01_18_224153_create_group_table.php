@@ -14,19 +14,19 @@ return new class extends Migration
     public function up()
     {
         Schema::create('group', function (Blueprint $table) {
-            $table->increments('id');
+            $table->increments('id_group');
             $table->integer('id_user1')->unsigned();
-            $table->foreign('id_user1')->references('id')->on('users');
+            $table->foreign('id_user1')->references('id_user')->on('users');
             $table->integer('id_user2')->unsigned();
-            $table->foreign('id_user2')->references('id')->on('users');
+            $table->foreign('id_user2')->references('id_user')->on('users');
             $table->integer('id_user3')->unsigned();
-            $table->foreign('id_user3')->references('id')->on('users');
+            $table->foreign('id_user3')->references('id_user')->on('users');
             $table->integer('id_user4')->unsigned();
-            $table->foreign('id_user4')->references('id')->on('users');
+            $table->foreign('id_user4')->references('id_user')->on('users');
             $table->integer('id_user5')->unsigned();
-            $table->foreign('id_user5')->references('id')->on('users');
+            $table->foreign('id_user5')->references('id_user')->on('users');
             $table->integer('id_projet')->unsigned();
-            $table->foreign('id_projet')->references('id')->on('users');
+            $table->foreign('id_projet')->references('id_user')->on('users');
             $table->timestamps();
         });
     }

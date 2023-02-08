@@ -8,13 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class File extends Model
 {
     use HasFactory;
-    protected $fillable = ['id', 'lettre_motivation', 'cv'];
+    protected $fillable = ['id_file','path','type'];
     protected $table = 'file';
 
-    public function Demande()
+    public function User()
     {
-        return $this->belongsTo(Demande::class);
+        return $this->belongsTo(User::class);
     }
+    public function Project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
 
 
     
