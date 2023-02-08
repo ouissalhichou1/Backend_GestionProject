@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\GroupsController;
@@ -26,4 +27,6 @@ Route::post('/SaveProject',[ProjectsController::class,'SaveProject']);
 
 Route::post('/SaveRole',[RolesController::class,'SaveRole']);
 
-Route::post('/getGroup',[GroupsController::class,'getGroup']);
+Route::post('/SaveGroup',[GroupsController::class,'SaveGroup']);
+
+Route::post('/SaveFile',[FileController::class,'SaveFile']);

@@ -14,7 +14,7 @@ class ProjectsController extends Controller
             $projects = new Project;
             $projects->sujet =$request->input('sujet');
             $projects->filiere =$request->input('filiere');
-            $projects->use =$request;
+            $projects->id_user =$request;
             $projects->description =$request->input('description');
             $projects->save();
             
