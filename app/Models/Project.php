@@ -17,10 +17,10 @@ class Project extends Model
     }
     public function Group()
     {
-        return $this->belongsToMany('App\Models\Group','Demandes');
+        return $this->belongsToMany('App\Models\Group','application')->withPivot('accepted');
     }
     public function file()
     {
-        return $this->hasOne(file::class);
+        return $this->hasMany(file::class);
     }
 }

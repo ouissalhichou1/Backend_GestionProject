@@ -13,16 +13,11 @@ class RolesController extends Controller
             $roles = new Role;
             $roles->RoleName =$request->input('RoleName');
             $roles->save();
-            return response()->json([
-             'status'=>200,
-             'message'=>'role a ete bien enregistrer',
-       ]);
-       }
+            return CustomResponse::buildResponse("created successfully",$roles ,201 );
+        }
        catch(QueryException $e){
-           return response()->json([
-           'status'=>1020,
-           'message'=>$e->getMessage()
-           ]);
+          $body = ["erroCode" => ExceptionHandler::getErrorCode($e), "errorMessage" => ExceptionHandler::getErrorMessage($e)];
+          return CustomResponse::buildResponse("error",$body ,500 ); 
         }
     }
 }

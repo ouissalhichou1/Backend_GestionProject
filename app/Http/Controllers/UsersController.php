@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\RoleUser;
-use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use App\Models\CustomResponse;
+use App\Models\ExceptionHandler;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\QueryException;
+
 
 class UsersController extends Controller
 {
@@ -22,22 +25,11 @@ class UsersController extends Controller
             $users->password = Hash::make($request->input('password'));
             $users->save();
             $users->roles()->attach([2,3]);
-            
-
-           return response()->json([
-          'status'=>200,
-          'message'=>'ensignant a ete bien enregistrer',
-       ]);
-       }
-   
+            return CustomResponse::buildResponse("created successfully",$users ,201 );
+        }
        catch(QueryException $e){
-           //$arr = explode(':', $e->getMessage());
-           //$arr2 = explode(" ", $arr[2])[7];
-           return response()->json([
-           'status'=>1020,
-           //'message'=>$arr2,
-           'message'=>$e->getMessage()
-           ]);
+           $body = ["erroCode" => ExceptionHandler::getErrorCode($e), "errorMessage" => ExceptionHandler::getErrorMessage($e)];
+           return CustomResponse::buildResponse("error",$body ,500 );
         }
     }
 
@@ -54,45 +46,27 @@ class UsersController extends Controller
             $users->password = Hash::make($request->input('password'));
             $users->save();
             $users->roles()->attach([2,4]);
-   
-         return response()->json([
-            'status'=>200,
-            'message'=>' etudiant a ete bien enregistrer',
-          ]);
+            return CustomResponse::buildResponse("created successfully",$users ,201 );
+         
         }   
         catch(QueryException $e){
-            //$arr = explode(':', $e->getMessage());
-            //$arr2 = explode(" ", $arr[2])[7];
-           return response()->json([
-           'status'=>1020,
-           //'message'=>$arr2,
-            'message'=>$e->getMessage()
-           ]);
-
+            $body = ["erroCode" => ExceptionHandler::getErrorCode($e), "errorMessage" => ExceptionHandler::getErrorMessage($e)];
+            return CustomResponse::buildResponse("error",$body ,500 );
         }
     }
-   
 
     function listUsers(Request $request){
-
        return User::all();
     }
    
     function UserProfile(Request $request){
-
-       $user =  User::find($request->id);
-       if ($user) {
-         return response()->json([
-         'status'=>200,
-         'message'=>'etudiant trouvé',
-         'data' => $user
-          ]);
+       $users  = User::find($request->id);
+       if ($users) { 
+         return CustomResponse::buildResponse("user found",$users ,302);
         }
        else{
-          return response()->json([
-         'status'=>204,
-          'message'=>'aucun étudiant trouvé',
-          ]);
+         //$body = ["erroCode" => ExceptionHandler::getErrorCode($e), "errorMessage" => ExceptionHandler::getErrorMessage($e)];
+         return CustomResponse::buildResponse("user not found",'',204 );
         }
     }
     

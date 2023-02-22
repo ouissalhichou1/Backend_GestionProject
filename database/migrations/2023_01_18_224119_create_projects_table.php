@@ -17,7 +17,7 @@ return new class extends Migration
             $table->increments('id_project');
             $table->string('sujet');
             $table->integer('id_user')->unsigned();
-            $table->foreign('id_user')->references('id_user')->on('users');
+            $table->foreign('id_user')->references('id')->on('users');
             $table->string('filiere');
             $table->longText('description');
             $table->timestamps();

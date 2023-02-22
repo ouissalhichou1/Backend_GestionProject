@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\File;
+use App\Models\Group;
+use App\Models\Project;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -18,7 +21,6 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany('App\Models\Role','role_users');
-    
     }
     public function Project()
     {
@@ -26,7 +28,11 @@ class User extends Authenticatable
     }
     public function file()
     {
-        return $this->hasOne(file::class);
+        return $this->hasMany(File::class);
+    }
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
     }
 
     

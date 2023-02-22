@@ -9,6 +9,6 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class RoleUser extends Pivot
 {
     use HasFactory;
-    protected $fillable = ['id_user','id_role'];
+    protected $fillable = ['id_users_roles','id_user','id_role'];
     protected $table = 'role_users';
 }

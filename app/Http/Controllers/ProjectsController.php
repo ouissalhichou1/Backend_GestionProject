@@ -5,30 +5,29 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use Illuminate\Database\QueryException;
+use App\Models\CustomResponse;
+use App\Models\ExceptionHandler;
 
-class ProjectsController extends Controller
-{
+class ProjectsController extends Controller{
+
     function SaveProject(Request $request,$id){
 
         try{
             $projects = new Project;
             $projects->sujet =$request->input('sujet');
             $projects->filiere =$request->input('filiere');
-            $projects->id_user =$request;
+            $projects->id_user = $id;
             $projects->description =$request->input('description');
             $projects->save();
-            
-            return response()->json([
-              'status'=>200,
-              'message'=>'Projet a ete bien enregistrer',
-            ]);
+            return CustomResponse::buildResponse("created successfully",$projects ,201 );
         }
-   
        catch(QueryException $e){
-           return response()->json([
-           'status'=>1020,
-           'message'=>$e->getMessage()
-           ]);
+           $body = ["erroCode" => ExceptionHandler::getErrorCode($e), "errorMessage" => ExceptionHandler::getErrorMessage($e)];
+           return CustomResponse::buildResponse("error",$body ,500 );
         }
+    }
+
+    function getProjects(){
+        return CustomResponse::buildResponse("fetched",Project::all() ,200 );
     }
 }
