@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('group', function (Blueprint $table) {
-            $table->increments('id_group');
+        Schema::create('groups', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('id_group_admin')->unsigned();
             $table->foreign('id_group_admin')->references('id')->on('users');
             $table->integer('id_user2')->unsigned()->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('id_user5')->unsigned()->nullable();
             $table->foreign('id_user5')->references('id')->on('users');
             $table->integer('id_project')->unsigned();
-            $table->foreign('id_project')->references('id_project')->on('projects');
+            $table->foreign('id_project')->references('id')->on('projects');
             $table->timestamps();
         });
     }
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('group');
+        Schema::dropIfExists('groups');
     }
 };

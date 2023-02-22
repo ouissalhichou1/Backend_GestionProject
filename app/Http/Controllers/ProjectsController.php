@@ -30,4 +30,5 @@ class ProjectsController extends Controller{
     function getProjects(){
         return CustomResponse::buildResponse("fetched",Project::all() ,200 );
     }
+    
 }

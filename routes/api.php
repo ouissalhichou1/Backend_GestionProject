@@ -32,6 +32,10 @@ Route::post('/User/Role/Save',[RolesController::class,'SaveRole']);
 
 Route::post('/Group/Save/{id_group_admin}',[GroupsController::class,'SaveGroup']);
 
-Route::get('/Project/Application/{id_group_admin}',[ApplicationsController::class,'SaveApplication']);
+Route::post('/Project/Application/{id_group_admin}/{id_project}',[ApplicationsController::class,'SaveApplication']);
 
 Route::post('/File/Save',[FileController::class,'SaveFile']);
+
+Route::post('/application/update/{}',[ApplicationsController::class,'ResponseforApplication']);
+
+Route::post('/Project/')
