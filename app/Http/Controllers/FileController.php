@@ -21,6 +21,10 @@ class FileController extends Controller
       return CustomResponse::buildResponse("error",$body ,500 ); 
     }
   }
-   
+  function DeleteFile(Request $request,$id_file){
+    $file = DB::delete('delete from file where id = ?',[$id_file]);
+    return CustomResponse::buildResponse("deleted successfully",'',200 );
+  }
+  
 }
 

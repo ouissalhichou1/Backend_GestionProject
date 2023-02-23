@@ -33,4 +33,7 @@ class GroupsController extends Controller{
       $group = DB::delete('delete from groups where id = ?',[$id_group_admin]);
       return CustomResponse::buildResponse("deleted successfully",'',200 );
   }
+  function QuitGroup(Request $request ,$id_user , $id_group){
+    
+  }
 }

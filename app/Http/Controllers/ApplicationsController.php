@@ -27,7 +27,6 @@ class ApplicationsController extends Controller
         
         
     }
-
     function ResponseforApplication(Request $request, $id_application){
         $response = $request->response;
         $applications = DB::update('update applications set response = ? where id = ?',[$response , $id_application]);

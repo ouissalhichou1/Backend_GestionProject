@@ -32,7 +32,6 @@ class UsersController extends Controller
            return CustomResponse::buildResponse("error",$body ,500 );
         }
     }
-
     function SaveStudent(Request $request){
 
         try{
@@ -54,11 +53,9 @@ class UsersController extends Controller
             return CustomResponse::buildResponse("error",$body ,500 );
         }
     }
-
     function listUsers(Request $request){
        return User::all();
     }
-   
     function UserProfile(Request $request){
        $users  = User::find($request->id);
        if ($users) { 

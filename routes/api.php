@@ -22,6 +22,8 @@ Route::get('/User/List',[UsersController::class,'listUsers']);
 
 Route::get('/User/Profile',[UsersController::class,'UserProfile']);
 
+Route::post('/Group/User/Quit/{id_user}/{id_group}',[GroupsController::class,'QuitGroup']);
+
 Route::post('/Project/Save/{id}',[ProjectsController::class,'SaveProject']);
 
 Route::get('/Project/List', [ProjectsController::class, 'getProjects']);
@@ -36,8 +38,11 @@ Route::post('/Group/Save/{id_group_admin}',[GroupsController::class,'SaveGroup']
 
 Route::post('/Group/Delete/{id_group_admin}',[GroupsController::class,'DeleteGroup']);
 
+
 Route::post('/Application/Update/Response/{id_application}',[ApplicationsController::class,'ResponseforApplication']);
 
 Route::post('/Application/delete/{id_application}',[ApplicationsController::class,'DeleteApplication']);
 
 Route::post('/File/Save',[FileController::class,'SaveFile']);
+
+Route::post('/File/Delete/{id_file}',[FileController::class,'DeleteFile']);
