@@ -25,8 +25,6 @@ return new class extends Migration
             $table->foreign('id_user4')->references('id')->on('users');
             $table->integer('id_user5')->unsigned()->nullable();
             $table->foreign('id_user5')->references('id')->on('users');
-            $table->integer('id_project')->unsigned()->nullable();
-            $table->foreign('id_project')->references('id')->on('projects');
             $table->timestamps();
         });
     }

@@ -20,7 +20,6 @@ class GroupsController extends Controller{
       $group->id_user3 =$request->id_user3;
       $group->id_user4 =$request->id_user4;
       $group->id_user5 =$request->id_user5;
-      $group->id_project=$request->id_project;
       $group->save();
       return CustomResponse::buildResponse("created successfully",$group ,201 );
     }

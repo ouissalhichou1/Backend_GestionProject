@@ -31,7 +31,6 @@ class ProjectsController extends Controller{
         return CustomResponse::buildResponse("fetched",Project::all() ,200 );
     }
     function DeleteProject(Request $request, $id_project){
-        $groups= DB::update('update groups set id_project = ? where id_project = ?',[NULL,$id_project]);
         $projects = DB::delete('delete from projects where id = ?',[$id_project]);
         return CustomResponse::buildResponse("deleted successfully",'',200 );
     }
