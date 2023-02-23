@@ -36,7 +36,7 @@ class ProjectsController extends Controller{
         return CustomResponse::buildResponse("deleted successfully",'',200 );
     }
     function ModifyProject(Request $request){
-        
+        echo
     }
     
 }
