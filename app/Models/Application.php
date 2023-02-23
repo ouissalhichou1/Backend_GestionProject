@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Application extends Pivot
 {
     use HasFactory;
-    protected $fillable = ['id_application','id_group', 'id_projet','accepted'];
+    protected $fillable = ['id_application','id_group', 'id_projet','response'];
     protected $table = 'applications';
     
     

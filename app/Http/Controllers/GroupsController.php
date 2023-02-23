@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Group;
-use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use App\Models\CustomResponse;
 use App\Models\ExceptionHandler;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 
 class GroupsController extends Controller{
   
@@ -27,8 +29,8 @@ class GroupsController extends Controller{
       return CustomResponse::buildResponse("error",$body ,500 ); 
     }
   }
-  
-  function application(Request $request){
-    
+  function DeleteGroup(Request $request ,$id_group_admin){
+      $group = DB::delete('delete from groups where id = ?',[$id_group_admin]);
+      return CustomResponse::buildResponse("deleted successfully",'',200 );
   }
 }

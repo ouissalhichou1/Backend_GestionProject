@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreign('id_group')->references('id')->on('groups');
             $table->integer('id_projet')->unsigned();
             $table->foreign('id_projet')->references('id')->on('projects');
-            $table->boolean('accepted')->default(false);
+            $table->string('response')->nullable();
             $table->timestamps();
         });
     }

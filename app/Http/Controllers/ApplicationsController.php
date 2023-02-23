@@ -28,8 +28,16 @@ class ApplicationsController extends Controller
         
     }
 
-    function ResponseforApplication(Resquest $request){
-
-        
+    function ResponseforApplication(Request $request, $id_application){
+        $response = $request->response;
+        $applications = DB::update('update applications set response = ? where id = ?',[$response , $id_application]);
+        $updated_application = Application::find($applications);
+        return CustomResponse::buildResponse("updated successfully",$updated_application ,200 );
     }
-}
+    function DeleteApplication(Request $request, $id_application){
+        $applications = DB::delete('delete from applications where id = ?',[$id_application]);
+        return CustomResponse::buildResponse("deleted successfully",'',200 );
+    }
+}  
+
+

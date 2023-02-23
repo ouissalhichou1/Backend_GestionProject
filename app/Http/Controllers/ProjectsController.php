@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Project;
-use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
 use App\Models\CustomResponse;
 use App\Models\ExceptionHandler;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 
 class ProjectsController extends Controller{
 
@@ -26,9 +27,16 @@ class ProjectsController extends Controller{
            return CustomResponse::buildResponse("error",$body ,500 );
         }
     }
-
     function getProjects(){
         return CustomResponse::buildResponse("fetched",Project::all() ,200 );
+    }
+    function DeleteProject(Request $request, $id_project){
+        $groups= DB::update('update groups set id_project = ? where id_project = ?',[NULL,$id_project]);
+        $projects = DB::delete('delete from projects where id = ?',[$id_project]);
+        return CustomResponse::buildResponse("deleted successfully",'',200 );
+    }
+    function ModifyProject(Request $request){
+        
     }
     
 }
