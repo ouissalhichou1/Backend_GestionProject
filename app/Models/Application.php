@@ -10,7 +10,7 @@ class Application extends Pivot
 {
     use HasFactory;
     protected $fillable = ['id_application','id_group', 'id_projet','accepted'];
-    protected $table = 'application';
+    protected $table = 'applications';
     
     
     

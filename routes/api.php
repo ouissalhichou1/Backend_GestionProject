@@ -38,4 +38,4 @@ Route::post('/File/Save',[FileController::class,'SaveFile']);
 
 Route::post('/application/update/{}',[ApplicationsController::class,'ResponseforApplication']);
 
-Route::post('/Project/')
+Route::post('/Project/');
