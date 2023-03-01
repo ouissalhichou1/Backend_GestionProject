@@ -30,7 +30,7 @@ Route::get('/Project/List', [ProjectsController::class, 'getProjects']);
 
 Route::post('/Project/delete/{id_project}',[ProjectsController::class,'DeleteProject']);
 
-Roure::post('/Project/Modification/{id_project}',[ProjectsController::class,'ModifyProject']);
+Route::post('/Project/Modification/{id_project}',[ProjectsController::class,'ModifyProject']);
 
 Route::post('/Project/Application/{id_group_admin}/{id_project}',[ApplicationsController::class,'SaveApplication']);
 
@@ -38,10 +38,13 @@ Route::post('/Group/Save/{id_group_admin}',[GroupsController::class,'SaveGroup']
 
 Route::post('/Group/Delete/{id_group_admin}',[GroupsController::class,'DeleteGroup']);
 
-
 Route::post('/Application/Update/Response/{id_application}',[ApplicationsController::class,'ResponseforApplication']);
 
 Route::post('/Application/delete/{id_application}',[ApplicationsController::class,'DeleteApplication']);
+
+Route::get('/User/Project/Applications/All/{id_student}',[ApplicationsController::class,'GetMyApplications']);
+
+Route::get('/User/Project/Applications/All/{id_project}',[ApplicationsController::class,'GetMyProjects']);
 
 Route::post('/File/Save',[FileController::class,'SaveFile']);
 

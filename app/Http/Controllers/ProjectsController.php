@@ -34,8 +34,10 @@ class ProjectsController extends Controller{
         $projects = DB::delete('delete from projects where id = ?',[$id_project]);
         return CustomResponse::buildResponse("deleted successfully",'',200 );
     }
-    function ModifyProject(Request $request){
-        
+    function ModifyProject(Request $request , $id_project){
+        $updated_project = DB::update('update projects set sujet = ?, filiere = ?, description = ? where id = ?',[$request->sujet ,$request->filiere, $request->description,$id_project]);
+        $updated_project = Project::find($id_project);
+        return CustomResponse::buildResponse("updated successfully",$updated_project,200 );
     }
     
 }
