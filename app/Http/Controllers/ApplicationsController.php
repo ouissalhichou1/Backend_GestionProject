@@ -55,9 +55,10 @@ class ApplicationsController extends Controller
 
         $results = Db::table("applications")
         ->join('projects', 'projects.id', '=', 'applications.id_project')
-        ->select('groups.*','')
+        ->join('groups', 'groups.id', '=', 'applications.id_group')
+        ->select('groups.*','projects.sujet')
+        ->where('projects.id', '=',$id_project)
         ->get();
-        //->where('projects.id', '=',$id_project)
         return CustomResponse::buildResponse("Found",$results ,302);
     }
 }
