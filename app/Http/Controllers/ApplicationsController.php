@@ -43,10 +43,21 @@ class ApplicationsController extends Controller
     {
         $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_student,$id_student,$id_student,$id_student,$id_student]);
         $id_group=array_map(function ($value) {return (array)$value;}, $id_group);
-        //$results = DB::select('select * from applications where id_group=?',[$id_group[0]["id"]]);
-        echo $id_group[0]["id"];
-        $results = DB::table('applications')->join('projects', 'applications.id_projet', '=', 'projects.id')->where('id_group = ?',[$id_group[0]["id"]])->get();;
+        $results = Db::table("applications")
+        ->join('groups', 'groups.id', '=', 'applications.id_group')
+        ->join('projects', 'projects.id', '=', 'applications.id_project')
+        ->select('projects.*', 'applications.response')
+        ->where('groups.id', '=',$id_group[0]["id"])
+        ->get();
         return CustomResponse::buildResponse("Found",$results ,302);
-      
+    }
+    public function GetMyProjects(Request $request , $id_project){
+
+        $results = Db::table("applications")
+        ->join('projects', 'projects.id', '=', 'applications.id_project')
+        ->select('groups.*','')
+        ->get();
+        //->where('projects.id', '=',$id_project)
+        return CustomResponse::buildResponse("Found",$results ,302);
     }
 }

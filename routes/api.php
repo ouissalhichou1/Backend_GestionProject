@@ -44,7 +44,7 @@ Route::post('/Application/delete/{id_application}',[ApplicationsController::clas
 
 Route::get('/User/Project/Applications/All/{id_student}',[ApplicationsController::class,'GetMyApplications']);
 
-Route::get('/User/Project/Applications/All/{id_project}',[ApplicationsController::class,'GetMyProjects']);
+Route::get('/Project/Applications/All/{id_project}',[ApplicationsController::class,'GetMyProjects']);
 
 Route::post('/File/Save',[FileController::class,'SaveFile']);
 

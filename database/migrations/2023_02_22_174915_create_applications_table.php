@@ -17,8 +17,8 @@ return new class extends Migration
             $table->increments('id');
             $table->integer('id_group')->unsigned();
             $table->foreign('id_group')->references('id')->on('groups');
-            $table->integer('id_projet')->unsigned();
-            $table->foreign('id_projet')->references('id')->on('projects');
+            $table->integer('id_project')->unsigned();
+            $table->foreign('id_project')->references('id')->on('projects');
             $table->string('response')->nullable();
             $table->timestamps();
         });
