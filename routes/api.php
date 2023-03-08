@@ -12,13 +12,19 @@ use App\Http\Controllers\ApplicationsController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request){return $request->user();});
 
-Route::post('/User/Professor/Save', [UsersController::class,'SaveProfessor']);
+Route::post('/Admin/User/Professor/Save', [UsersController::class,'SaveProfessor']);
 
-Route::post('/User/Student/Save', [UsersController::class,'SaveStudent']);
+Route::post('/Admin/User/Student/Save', [UsersController::class,'SaveStudent']);
 
-Route::post('/User/Role/Save',[RolesController::class,'SaveRole']);
+Route::post('/Admin/User/Role/Save',[RolesController::class,'SaveRole']);
 
-Route::get('/User/List',[UsersController::class,'listUsers']);
+Route::get('/Admin/User/Role/All/{id_user}',[RolesController::class,'GetUserRoles']);
+
+Route::post('/Admin/user/Role/Grant/{id_user}',[RolesController::class,'GrantRoleForUser']);
+
+Route::post('/Admin/user/Role/Revoke/{id_user}',[RolesController::class,'RevokeRoleForUser']);
+
+Route::get('/User/List',[UsersController::class,'listUsers']);//*****
 
 Route::get('/User/Profile',[UsersController::class,'UserProfile']);
 
@@ -36,11 +42,11 @@ Route::post('/Project/Application/{id_group_admin}/{id_project}',[ApplicationsCo
 
 Route::post('/Group/Save/{id_group_admin}',[GroupsController::class,'SaveGroup']);
 
-Route::post('/Group/Delete/{id_group_admin}',[GroupsController::class,'DeleteGroup']);
+Route::post('/Group/Delete/{id_group_admin}',[GroupsController::class,'DeleteGroup']);//*****
 
 Route::post('/Application/Update/Response/{id_application}',[ApplicationsController::class,'ResponseforApplication']);
 
-Route::post('/Application/delete/{id_application}',[ApplicationsController::class,'DeleteApplication']);
+Route::post('/Application/delete/{id_application}',[ApplicationsController::class,'DeleteApplication']);//******
 
 Route::get('/User/Project/Applications/All/{id_student}',[ApplicationsController::class,'GetMyApplications']);
 
