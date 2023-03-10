@@ -16,6 +16,10 @@ Route::post('/Admin/User/Professor/Save', [UsersController::class,'SaveProfessor
 
 Route::post('/Admin/User/Student/Save', [UsersController::class,'SaveStudent']);
 
+Route::post('Admin/Save/Students/File',[UsersController::class,'SaveSAtudentsFromFile']);
+
+Route::post('Admin/Save/Professors/File',[UsersController::class,'SaveProfessorFromFile']);
+
 Route::post('/Admin/User/Role/Save',[RolesController::class,'SaveRole']);
 
 Route::get('/Admin/User/Role/All/{id_user}',[RolesController::class,'GetUserRoles']);
