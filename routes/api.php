@@ -32,7 +32,9 @@ Route::get('/User/List',[UsersController::class,'listUsers']);//*****
 
 Route::get('/User/Profile',[UsersController::class,'UserProfile']);
 
-Route::post('/Group/User/Quit/{id_user}/{id_group}',[GroupsController::class,'QuitGroup']);
+Route::get('/Group/User/Quit/{id_student}',[GroupsController::class,'QuitGroup']);
+
+Route::get('/Group/User/AdminGroup/Quit/{id_group_admin}',[GroupsController::class,'AdminQuitGroup']);
 
 Route::post('/Project/Save/{id}',[ProjectsController::class,'SaveProject']);
 
