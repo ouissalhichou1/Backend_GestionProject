@@ -7,6 +7,7 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\GroupsController;
 use App\Http\Controllers\ProjectsController;
+use App\Http\Controllers\InvitationsController;
 use App\Http\Controllers\ApplicationsController;
 
 
@@ -61,3 +62,5 @@ Route::get('/Project/Applications/All/{id_project}',[ApplicationsController::cla
 Route::post('/File/Save',[FileController::class,'SaveFile']);
 
 Route::post('/File/Delete/{id_file}',[FileController::class,'DeleteFile']);
+
+Route::post('/Group/Admin/Invitation/user/{id_group_admin}',[InvitationsController::class,'SendInvitation']);

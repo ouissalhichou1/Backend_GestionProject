@@ -13,7 +13,7 @@ class Group extends Model
 
     public function Project()
     {
-        return $this->belongsToMany('App\Models\Project','application')->withPivot('accepted');
+        return $this->belongsToMany('App\Models\Project','application')->withPivot('response');
     }
     public function User()
     {
