@@ -274,7 +274,6 @@ return [
         */
 
         'jwt' => PHPOpenSourceSaver\JWTAuth\Providers\JWT\Lcobucci::class,
-       
         /*
         |--------------------------------------------------------------------------
         | Authentication Provider
