@@ -52,12 +52,15 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'name'=>$request->name,
             'surname'=>$request->surname,
-            'email' => $request->email,
+            //'code'=>$request->code,
+            'apogee'=>$request->apogee,
+            'filiere'=>$request->filiere,
+            //'specialite' =>$request->specialite,
+            'email' =>$request->email,
             'password' => Hash::make($request->password),
         ]);
-
         $token = Auth::login($user);
         return response()->json([
             'status' => 'success',
