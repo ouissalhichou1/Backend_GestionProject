@@ -10,13 +10,10 @@ use App\Models\User;
 class AuthController extends Controller
 {
 
-    public function __construct()
-    {
+    public function __construct(){
         $this->middleware('auth:api', ['except' => ['login','register']]);
     }
-
-    public function login(Request $request)
-    {
+    public function login(Request $request) {
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -42,7 +39,6 @@ class AuthController extends Controller
             ]);
 
     }
-
     public function register(Request $request){
         $request->validate([
             'name' => 'required|string|max:255',
@@ -72,26 +68,20 @@ class AuthController extends Controller
             ]
         ]);
     }
-
-    public function logout()
-    {
+    public function logout(){
         Auth::logout();
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully logged out',
         ]);
     }
-
-    public function me()
-    {
+    public function me(){
         return response()->json([
             'status' => 'success',
             'user' => Auth::user(),
         ]);
     }
-
-    public function refresh()
-    {
+    public function refresh(){
         return response()->json([
             'status' => 'success',
             'user' => Auth::user(),
