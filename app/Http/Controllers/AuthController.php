@@ -16,7 +16,7 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
+    {   
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -31,7 +31,16 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $user = Auth::user();
+       /* $user = Auth::user();
+        $payload = [
+            'sub' => $user->id,
+            'name' => $user->name,
+            'id_user' => $user->id,
+            'iat' => time(),
+            'exp' => time() + config('jwt.ttl'),
+        ];*/
+        
+        $token = JWTAuth::encode($payload);
         return response()->json([
                 'status' => 'success',
                 'user' => $user,
