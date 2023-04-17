@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Notifications\EmailVerificationNotification;
 
 class AuthController extends Controller
 {
@@ -62,6 +63,7 @@ class AuthController extends Controller
             'email' =>$request->email,
             'password' => Hash::make($request->password),
         ]);
+        $user ->notify(new EmailVerificationNotification());
         $token = Auth::login($user);
         return response()->json([
             'status' => 'success',
