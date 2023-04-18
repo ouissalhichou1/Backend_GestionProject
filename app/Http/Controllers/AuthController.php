@@ -5,10 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use PHP_OS\JwtAuth;
 use App\Models\User;
 
 class AuthController extends Controller
 {
+
+
+    protected function CreateCustomPayload($userId){
+        $customClaims = [
+            'iss'=> config('app.name'),
+            'sub'=>$userId,
+            'iat'=>time(),
+            'exp'=>time()+60*60,
+            'my_claim'=>'some_value',
+        ];
+        return $customClaims;
+    }
 
     public function __construct()
     {
@@ -30,22 +43,17 @@ class AuthController extends Controller
                 'message' => 'Unauthorized',
             ], 401);
         }
+       // $token = JWTAuth::encode($payload);
+       $customClaims = $this->CreateCustomPayload(Auth::id);
+       $jwtAuth = new JwtAuth(config('app.key'));
 
-       /* $user = Auth::user();
-        $payload = [
-            'sub' => $user->id,
-            'name' => $user->name,
-            'id_user' => $user->id,
-            'iat' => time(),
-            'exp' => time() + config('jwt.ttl'),
-        ];*/
-        
-        $token = JWTAuth::encode($payload);
-        return response()->json([
+       $customToken = $jwtAuth->encode($customClaims);
+       
+       return response()->json([
                 'status' => 'success',
                 'user' => $user,
                 'authorisation' => [
-                    'token' => $token,
+                    'token' => $customToken,
                     'type' => 'bearer',
                 ]
             ]);
