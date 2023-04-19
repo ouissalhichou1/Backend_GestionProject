@@ -2,26 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use PHP_OS\JwtAuth;
+//use PHP_OS\JwtAuth;
 use App\Models\User;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
 {
 
 
-    protected function CreateCustomPayload($userId){
+    /*protected function CreateCustomPayload($userId){
+        $userName = DB::select('select name from users where id = ?',[$userId]);
+        $userSurname = DB::select('select surname from users where id = ?',[$userId]);
+        $userRole = DB::select('select role_id from role_users where user_id = ?',[$userId]);
         $customClaims = [
             'iss'=> config('app.name'),
             'sub'=>$userId,
+            'name'=>$userName,
+            'surname'=>$userSurname,
+            'role'=>$userRole,
             'iat'=>time(),
             'exp'=>time()+60*60,
-            'my_claim'=>'some_value',
+            //'my_claim'=>'some_value',
         ];
         return $customClaims;
-    }
+    }*/
 
     public function __construct()
     {
@@ -35,7 +42,6 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
         $credentials = $request->only('email', 'password');
-
         $token = Auth::attempt($credentials);
         if (!$token) {
             return response()->json([
@@ -43,21 +49,14 @@ class AuthController extends Controller
                 'message' => 'Unauthorized',
             ], 401);
         }
-       // $token = JWTAuth::encode($payload);
-       $customClaims = $this->CreateCustomPayload(Auth::id);
-       $jwtAuth = new JwtAuth(config('app.key'));
-
-       $customToken = $jwtAuth->encode($customClaims);
-       
-       return response()->json([
+       $user = Auth::user();
+        return response()->json([
                 'status' => 'success',
-                'user' => $user,
                 'authorisation' => [
-                    'token' => $customToken,
+                    'token' => $token,
                     'type' => 'bearer',
                 ]
             ]);
-
     }
 
     public function register(Request $request){
@@ -78,11 +77,13 @@ class AuthController extends Controller
             'email' =>$request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        
         $token = Auth::login($user);
         return response()->json([
             'status' => 'success',
             'message' => 'User created successfully',
-            'user' => $user,
+            //'user' => $user,
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',

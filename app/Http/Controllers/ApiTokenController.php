@@ -7,7 +7,7 @@ use JWTAuth;
 
 class ApiTokenController extends Controller
 {
-    public function generateToken(Request $request, $id, $role)
+    /*public function generateToken(Request $request, $id, $role)
     {   $payload = [
         'sub' => $user->id,
         'role' => $user->role,
@@ -24,5 +24,5 @@ class ApiTokenController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
         ]);
-    }
+    }*/
 }
