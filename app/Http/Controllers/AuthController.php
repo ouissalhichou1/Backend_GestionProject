@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
 {
-
-
     /*protected function CreateCustomPayload($userId){
         $userName = DB::select('select name from users where id = ?',[$userId]);
         $userSurname = DB::select('select surname from users where id = ?',[$userId]);
@@ -56,7 +54,7 @@ class AuthController extends Controller
                     'token' => $token,
                     'type' => 'bearer',
                 ]
-            ]);
+            ])->withCookie('my_cookie',$user->id,60);
     }
 
     public function register(Request $request){
