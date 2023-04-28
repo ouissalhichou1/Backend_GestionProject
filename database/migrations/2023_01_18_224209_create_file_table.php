@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('path');
             $table->string('type');
             $table->integer('id_project')->unsigned();
-            $table->foreign('id_project')->references('id')->on('projects');
+            $table->foreign('id_project')->references('id')->on('projects')->onDelete('cascade');;
             $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
             $table->timestamps();
         });
     }

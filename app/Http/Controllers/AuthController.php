@@ -2,32 +2,17 @@
 
 namespace App\Http\Controllers;
 
-//use PHP_OS\JwtAuth;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\CustomResponse;
+use App\Models\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+
 class AuthController extends Controller
 {
-    /*protected function CreateCustomPayload($userId){
-        $userName = DB::select('select name from users where id = ?',[$userId]);
-        $userSurname = DB::select('select surname from users where id = ?',[$userId]);
-        $userRole = DB::select('select role_id from role_users where user_id = ?',[$userId]);
-        $customClaims = [
-            'iss'=> config('app.name'),
-            'sub'=>$userId,
-            'name'=>$userName,
-            'surname'=>$userSurname,
-            'role'=>$userRole,
-            'iat'=>time(),
-            'exp'=>time()+60*60,
-            //'my_claim'=>'some_value',
-        ];
-        return $customClaims;
-    }*/
-
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login','register']]);
@@ -41,6 +26,7 @@ class AuthController extends Controller
         ]);
         $credentials = $request->only('email', 'password');
         $token = Auth::attempt($credentials);
+        // check if the user is registerd!!
         if (!$token) {
             return response()->json([
                 'status' => 'error',
@@ -50,43 +36,57 @@ class AuthController extends Controller
        $user = Auth::user();
         return response()->json([
                 'status' => 'success',
+                'id_user'=>$user->id,
+                'name'=>$user->name,
+                'surname'=>$user->surname,
+                'role'=>$user->roles[0]->RoleName,
                 'authorisation' => [
                     'token' => $token,
                     'type' => 'bearer',
                 ]
-            ])->withCookie('my_cookie',$user->id,60);
+                ]);
     }
 
     public function register(Request $request){
+        try{
         $request->validate([
-            'name' => 'required|string|max:255',
-            'surname' => 'required|string|max:255',
-            'email' => 'required|string|email:|max:255|unique:users',
-            'password' => 'required|string|min:6',
-        ]);
-
-        $user = User::create([
-            'name'=>$request->name,
-            'surname'=>$request->surname,
-            'code'=>$request->code,
-            'apogee'=>$request->apogee,
-            'filiere'=>$request->filiere,
-            'specialite' =>$request->specialite,
-            'email' =>$request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        
-        $token = Auth::login($user);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User created successfully',
-            //'user' => $user,
-            'authorisation' => [
-                'token' => $token,
-                'type' => 'bearer',
-            ]
-        ]);
+                'name' => 'required|string|max:255',
+                'surname' =>'required|string|max:255',
+                'email' => 'required|string|email:|max:255',
+                'password' =>'required|string|min:6',
+                'code'=>'integer|min:3',
+                'apogee'=>'integer|min:8',
+                'filiere'=>'string|max:255',
+                'specialite' =>'string|max:255',
+            ]);
+            $user = User::create([
+                'name'=>$request->name,
+                'surname'=>$request->surname,
+                'code'=>$request->code,
+                'apogee'=>$request->apogee,
+                'filiere'=>$request->filiere,
+                'specialite' =>$request->specialite,
+                'email' =>$request->email,
+                'password' => Hash::make($request->password),
+            ]);
+            $token = Auth::login($user);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User created successfully',
+                'id_user'=>$user->id,
+                'name'=>$user->name,
+                'surname'=>$user->surname,
+                'role'=>$user->roles[0]->RoleName,
+                'authorisation' => [
+                    'token' => $token,
+                    'type' => 'bearer',
+                ]
+            ]);
+        }
+        catch(QueryException $e){
+            $body = ["errorCode" => ExceptionHandler::getErrorCode($e), "errorMessage" => ExceptionHandler::getErrorMessage($e)];
+            return CustomResponse::buildResponse("error",$body ,500 ); 
+        };
     }
 
     public function logout()

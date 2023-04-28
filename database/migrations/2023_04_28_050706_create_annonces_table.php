@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('applications', function (Blueprint $table) {
+        Schema::create('annonces', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('id_group')->unsigned();
-            $table->foreign('id_group')->references('id')->on('groups')->onDelete('cascade');;
-            $table->integer('id_project')->unsigned();
-            $table->foreign('id_project')->references('id')->on('projects')->onDelete('cascade');;
-            $table->string('response')->nullable();
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('title');
+            $table->string('message');
+            $table->integer('group_id');
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('applications');
+        Schema::dropIfExists('annonces');
     }
 };

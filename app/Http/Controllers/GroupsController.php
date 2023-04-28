@@ -9,44 +9,93 @@ use App\Models\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 
-class GroupsController extends Controller{
+class GroupsController extends Controller
+{
+    public function SaveGroup(Request $request,$id_user)
+    {
+        $group = new Group();
+        $group->id_group_admin = $id_user;
+        $group->id_user2 =$request->input('user2');
+        $group->id_user3 =$request->input('user3');
+        $group->id_user4 = $request->input('user4');
+        $group->id_user5 = $request->input('user5');
+        $group->save();
+        return response()->json([
+          'status' => 'created success',
+          'group' => $group,
+          ]);
   
-  function SaveGroup(Request $request, $id_group_admin){ 
+    }
+    public function DeleteGroup(Request $request)
+    {
+      $admin_apogee = $request->apogee;
+      $admin_id = DB::select('select id from users where apogee = ?',[$admin_apogee]);
+      $admin_id =array_map(function ($value) {
+        return (array)$value;
+      }, $admin_id);
+      $group = DB::delete('delete from groups where id_group_admin = ?', [$admin_id[0]["id"]]);
+         return response()->json([
+          'status' => 'deleted successfully',
+          ]);
+    }
+    public function QuitGroup(Request $request, $id_student)
+   {
 
-    try{
-      $group = new Group;
-      $group->$id_group_admin =$$id_group_admin;
-      $group->id_user2 =$request->id_user2;
-      $group->id_user3 =$request->id_user3;
-      $group->id_user4 =$request->id_user4;
-      $group->id_user5 =$request->id_user5;
-      $group->save();
-      return CustomResponse::buildResponse("created successfully",$group ,201 );
-    }
-    catch(QueryException $e){
-      $body = ["erroCode" => ExceptionHandler::getErrorCode($e), "errorMessage" => ExceptionHandler::getErrorMessage($e)];
-      return CustomResponse::buildResponse("error",$body ,500 ); 
-    }
-  }
-  function DeleteGroup(Request $request ,$id_group_admin){
-      $group = DB::delete('delete from groups where id = ?',[$id_group_admin]);
-      return CustomResponse::buildResponse("deleted successfully",'',200 );
-  }
-  function QuitGroup(Request $request ,$id_student){
-    $id_group = DB::select('select * from groups where id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_student,$id_student,$id_student,$id_student]);
+    $id_group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_student,$id_student,$id_student,$id_student,$id_student]);
     $id_group=array_map(function ($value) {return (array)$value;}, $id_group);
-    $group =$id_group;
-    unset($group[0]["id"]);
-    unset($group[0]["id_group_admin"]);
-    $key = array_search($id_student, $group[0]);
-    $group = DB::update("update groups set ". $key."= NULL where id=?",[$id_group[0]["id"]]);
-    return CustomResponse::buildResponse("deleted successfully",'',200 );
+    $group_data = array_slice($id_group[0], 1, null, true);
+    $role = array_search($id_student, $group_data);
+    $nbrOfmembers = count($group_data);
+      if($role == "id_group_admin") {
+    //check if the group has only one member
+    if($nbrOfmembers == 1) {
+        $result = DB::delete('delete from groups where id = ?', [$id_group[0]["id"]]);
+        return response()->json([
+          'status' => 'success',
+          'message' => 'Group deleted  successfully ',
+        ]);
+    } else {
+        //the group has more than one member
+        $id_group_admin =$group_data["id_group_admin"];
+        $updeted_array = array_values(array_filter($group_data, function ($value) use ($id_group_admin) {
+            return !is_null($value) && $value !== $id_group_admin;
+        }));
+        $result = DB::update(
+            "update groups set id_group_admin =?,id_user2=?,id_user3=?,id_user4=?,id_user5=? where id=?",
+            [$updeted_array[0],$updeted_array[1],$updeted_array[2],$updeted_array[3],$updeted_array[4],$id_group[0]["id"]]
+        );
+        return response()->json([
+          'status' => 'success',
+          'message' => 'User quit successfully',
+        ]);
+    }
+     }       if($role == "user2"){
+       $group_updated = DB::update("update groups set id_user2=?,id_user3=?,id_user4=?,id_user5=NULL where id=?",[$id_group[0]["id_user2"],$id_group[0]["id_user3"],$id_group[0]["id_user4"],$id_group[0]["id_user5"],$id_group[0]["id"]]);
+       return response()->json([
+        'status' => 'success',
+        'message' => 'User quit successfully',
+       ]); 
+
+      }
+      
   }
-  function AdminQuitGroup(Request $request, $id_group_admin){
-    $id_group = DB::select('select * from groups where id_group_admin=?', [$id_group_admin]);
-    $id_group=array_map(function ($value) {return (array)$value;}, $id_group);
-    //print_r($id_group);
-    $id_group_updated = DB::update("update groups set id_group_admin =?,id_user2=?,id_user3=?,id_user4=?,id_user5=NULL where id=?",[$id_group[0]["id_user2"],$id_group[0]["id_user3"],$id_group[0]["id_user4"],$id_group[0]["id_user5"],$id_group[0]["id"]]);
-    return CustomResponse::buildResponse("deleted successfully",'',200 );
+
+  public function GetGroup(Request $request, $id_student){
+
+    $group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_student,$id_student,$id_student,$id_student,$id_student]);
+    $data =[] ;
+    foreach ($groups as $group) {
+      $role_id = DB::select('select name, surname from users where user_id = ?', [ $user->id]);
+      $role_id = array_map(function ($value){return (array)$value;}, $role_id);
+      $role_Name = DB::select('select RoleName from roles where id = ?', [$role_id[0]["role_id"]]);
+      $role_Name = array_map(function ($value){return (array)$value;}, $role_Name);
+      $user->Role = $role_Name[0]["RoleName"];
+      $data[] = $user;
+      }
+    return response()->json([
+      'status' => 'created success',
+      'group' => $group,
+      ]);
   }
+
 }

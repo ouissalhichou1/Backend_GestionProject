@@ -6,13 +6,13 @@ use Illuminate\Http\Request;
 
 class FileController extends Controller
 {
-  function SaveFile(Request $request, $id_user ,$id_project){ 
+  function SaveFile(Request $request, $id_user ){ 
     try{
      $file = new File;
      $file->path =$request->input('path');
      $file->type =$request->input('type');
      $file->id_user = $id_user;
-     $file->id_project =$id_project;
+    // $file->id_project =$id_project;
      $file->save();
      return CustomResponse::buildResponse("created successfully",$file ,201 );
     }

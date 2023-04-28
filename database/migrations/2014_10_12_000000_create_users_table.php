@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('surname');
             $table->integer('code')->nullable();
             $table->string('specialite')->nullable();
-            $table->integer('apogee')->nullable();
+            $table->integer('apogee')->unique()->nullable();
             $table->string('filiere')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

@@ -10,29 +10,29 @@ use Illuminate\Support\Facades\DB;
 
 class ApplicationsController extends Controller
 {
-    public function SaveApplication(Request $request, $id_group_admin, $id_project)
+    public function SaveApplication(Request $request, $id_user)
     {
-        try {
-            $id_groups = DB::select('select id from groups where id_group_admin = :id_group_admin', ['id_group_admin' => $id_group_admin]);
-            $id_groups=array_map(function ($value) {
+        
+            $id_group = DB::select('select id from groups where id_group_admin = ?', [$id_user]);
+            $id_group =array_map(function ($value) {
                 return (array)$value;
-            }, $id_groups);
-            $applications = new Application();
-            $applications->id_projet = $id_project;
-            $applications->id_group = $id_groups[0]["id"];
-            $applications->save();
-            return CustomResponse::buildResponse("created successfully", $applications, 201);
-        } catch(QueryException $e) {
-            $body = ["erroCode" => ExceptionHandler::getErrorCode($e), "errorMessage" => ExceptionHandler::getErrorMessage($e)];
-            return CustomResponse::buildResponse("error", $body, 500);
-        }
+            }, $id_group);
+            $application = new Application();
+            $application->id_project = $request->id_project;
+            $application->id_group = $id_group[0]["id"];
+            $application->save();
+            return response()->json([
+                'status' => 'success',
+                'project' => $application,
+            ]);    
     }
-    public function ResponseforApplication(Request $request, $id_application)
+    public function ResponseforApplication(Request $request, $id_user)
     {
+        $id_project = $request->id_project;
         $response = $request->response;
         $applications = DB::update('update applications set response = ? where id = ?', [$response , $id_application]);
         $updated_application = Application::find($applications);
-        return CustomResponse::buildResponse("updated successfully", $updated_application, 200);
+        
     }
     public function DeleteApplication(Request $request, $id_application)
     {
@@ -51,7 +51,7 @@ class ApplicationsController extends Controller
         ->get();
         return CustomResponse::buildResponse("Found",$results ,302);
     }
-    public function GetMyProjects(Request $request , $id_project){
+    public function GetMyProjects(Request $request , $id_project){/////neeeed change
 
         $results = Db::table("applications")
         ->join('projects', 'projects.id', '=', 'applications.id_project')

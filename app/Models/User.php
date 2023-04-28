@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\File;
+use App\Models\Todo;
 use App\Models\Group;
 use App\Models\Project;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject , MustVerifyEmail
 {
@@ -29,6 +30,10 @@ class User extends Authenticatable implements JWTSubject , MustVerifyEmail
     public function file()
     {
         return $this->hasMany(File::class);
+    }
+    public function todo()
+    {
+        return $this->hasMany(Todo::class);
     }
     public function group()
     {

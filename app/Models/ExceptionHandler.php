@@ -7,7 +7,8 @@ class ExceptionHandler
 
     public static $errorCodes = [
         "1452" => ["errorCode" => 70001, "errorMessage"=> "a foreign key constraint fails"],
-        "1048" => ["errorCode" => 70002, "errorMessage"=> "had error hada baqi makhlaq"]
+        "1048" => ["errorCode" => 70002, "errorMessage"=> "had error hada baqi makhlaq"],
+        "23000" =>["errorCode" => 23000, "errorMessage"=> "email or apogee must be unique"]
     ];
 
     static function getErrorCode($e){

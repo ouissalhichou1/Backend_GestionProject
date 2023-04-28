@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('invitations', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('id_group')->unsigned();
-            $table->foreign('id_group')->references('id')->on('groups');
+            $table->foreign('id_group')->references('id')->on('groups')->onDelete('cascade');;
             $table->integer('id_etudiant')->unsigned();
-            $table->foreign('id_etudiant')->references('id')->on('projects');
+            $table->foreign('id_etudiant')->references('id')->on('projects')->onDelete('cascade');;
             $table->string('response')->nullable();
         });
     }
