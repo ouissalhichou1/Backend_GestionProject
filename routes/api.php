@@ -12,6 +12,7 @@ use App\Http\Controllers\InvitationsController;
 use App\Http\Controllers\ApplicationsController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request){return $request->user();});
@@ -56,6 +57,9 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('me', 'me');//done
 
 });
+
+Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+
 //---------------------------------------------------------------------------------------------------------------------
 
 

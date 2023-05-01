@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use App\Mail\VerifyEmail;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -33,6 +36,10 @@ class AuthController extends Controller
                 'message' => 'Unauthorized',
             ], 401);
         }
+        //check if the user verified email
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Please verify your email address.'], 403);
+        }
        $user = Auth::user();
         return response()->json([
                 'status' => 'success',
@@ -48,7 +55,7 @@ class AuthController extends Controller
     }
 
     public function register(Request $request){
-        try{
+
         $request->validate([
                 'name' => 'required|string|max:255',
                 'surname' =>'required|string|max:255',
@@ -69,24 +76,21 @@ class AuthController extends Controller
                 'email' =>$request->email,
                 'password' => Hash::make($request->password),
             ]);
-            $token = Auth::login($user);
+            event(new Registered($user));
+            Mail::to($user->email)->send(new VerifyEmail($user));
+           // $token = Auth::login($user);
             return response()->json([
                 'status' => 'success',
-                'message' => 'User created successfully',
+                'message' => 'Registered successfully!Please verify your email address.',
                 'id_user'=>$user->id,
                 'name'=>$user->name,
                 'surname'=>$user->surname,
                 'role'=>$user->roles[0]->RoleName,
-                'authorisation' => [
+                /*'authorisation' => [
                     'token' => $token,
                     'type' => 'bearer',
-                ]
+                ]*/
             ]);
-        }
-        catch(QueryException $e){
-            $body = ["errorCode" => ExceptionHandler::getErrorCode($e), "errorMessage" => ExceptionHandler::getErrorMessage($e)];
-            return CustomResponse::buildResponse("error",$body ,500 ); 
-        };
     }
 
     public function logout()
