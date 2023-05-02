@@ -3,16 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Mail\VerifyEmail;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\CustomResponse;
 use App\Models\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
-use App\Mail\VerifyEmail;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Auth\Events\Registered;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -66,32 +67,32 @@ class AuthController extends Controller
                 'filiere'=>'string|max:255',
                 'specialite' =>'string|max:255',
             ]);
-            $user = User::create([
-                'name'=>$request->name,
-                'surname'=>$request->surname,
-                'code'=>$request->code,
-                'apogee'=>$request->apogee,
-                'filiere'=>$request->filiere,
-                'specialite' =>$request->specialite,
-                'email' =>$request->email,
-                'password' => Hash::make($request->password),
-            ]);
-            event(new Registered($user));
-            Mail::to($user->email)->send(new VerifyEmail($user));
-           // $token = Auth::login($user);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Registered successfully!Please verify your email address.',
-                'id_user'=>$user->id,
-                'name'=>$user->name,
-                'surname'=>$user->surname,
-                'role'=>$user->roles[0]->RoleName,
-                /*'authorisation' => [
-                    'token' => $token,
-                    'type' => 'bearer',
-                ]*/
-            ]);
+    
+        $user = User::create([
+            'name'=>$request->name,
+            'surname'=>$request->surname,
+            'code'=>$request->code,
+            'apogee'=>$request->apogee,
+            'filiere'=>$request->filiere,
+            'specialite' =>$request->specialite,
+            'email' =>$request->email,
+            'password' => Hash::make($request->password),
+            'email_verification_token' => Str::random(40),
+        ]);
+    
+        event(new Registered($user));
+        Mail::to($user->email)->send(new VerifyEmail($user));
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Registered successfully! Please verify your email address.',
+            'id_user'=>$user->id,
+            'name'=>$user->name,
+            'surname'=>$user->surname,
+            'role'=>$user->roles[0]->RoleName,
+        ]);
     }
+    
 
     public function logout()
     {

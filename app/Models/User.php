@@ -16,7 +16,7 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['id','name','surname','email', 'password','code', 'specialite','apogee', 'filiere'];
+    protected $fillable = ['id','name','surname','email', 'password','code', 'specialite','apogee', 'filiere','email_verification_token'];
     protected $table = 'users';
 
     public function roles()
@@ -66,7 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
      * @return array
      */
     public function getJWTCustomClaims(){
-        
+      /*  
         $fillableAttributes = $this->getFillableAttributes();
         $role = $this->roles;
         $roleArray =$role->toArray();
@@ -81,10 +81,10 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
         $role[0]["RoleName"],
         //$role->roleName,
         //$fillableAttributes->userRoles
-        ];
+        ];*/
         }
     
-    public function getFillableAttributes()
+    /*public function getFillableAttributes()
     {
         $fillableAttributes = [];
 
@@ -93,6 +93,6 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
         }
 
         return $fillableAttributes;
-    }
+    }*/
    
 }

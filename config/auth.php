@@ -42,8 +42,11 @@ return [
         ],
         
         'api' => [
-                'driver' => 'jwt',
-                'provider' => 'users',
+            'driver' => 'jwt',
+            'provider' => 'users',
+            'identifier' => 'user_id',
+            'role' => 'user_role',
+
         ],
     ],
 

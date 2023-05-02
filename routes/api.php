@@ -15,9 +15,6 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request){return $request->user();});
-
-
 //---------------------------------------------ADMIN---------------------------------------------------------------
 
 Route::post('Admin/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');// not done yet
@@ -28,7 +25,8 @@ Route::group(['middleware' => ['jwt.auth']], function () {
     //Route::post('Admin/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');
 
 });
-Route::post('/Admin/User/Professor/Save', [UsersController::class,'SaveUser']);//done
+Route::post('/Admin/User/Professor/Save', [UsersController::class,'SaveUser'])
+->middleware(CheckRole::class . ':admin');//done
 
 Route::post('/Admin/User/Student/Save', [UsersController::class,'SaveUser']);//done
 
@@ -59,6 +57,9 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+
+
+
 
 //---------------------------------------------------------------------------------------------------------------------
 

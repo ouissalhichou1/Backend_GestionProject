@@ -1,29 +1,40 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Events\Verified;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
 
 class VerificationController extends Controller
 {
-    public function verify(Request $request, $id, $hash)
+    /**
+     * Mark the authenticated user's email address as verified.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     * @throws AuthorizationException
+     */
+    public function verify(Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail($request->route('id'));
 
-        if ($user->email_verification_token !== $hash) {
-            return response()->json(['message' => 'Invalid verification link.'], 400);
+        if (! hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
+            throw new AuthorizationException;
         }
 
         if ($user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email address already verified.'], 400);
+            return response()->json(['message' => 'Email already verified.']);
         }
 
         $user->markEmailAsVerified();
-        event(new Verified($user));
+        $user->forceFill(['email_verified_at' => Carbon::now()])->save();
 
-        return response()->json(['message' => 'Email address verified.'], 200);
+        return view('verification-page');
+        // response()->json(['message' => 'Email successfully verified.']);
     }
+    
+
 }
