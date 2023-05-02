@@ -12,7 +12,7 @@ use App\Http\Controllers\InvitationsController;
 use App\Http\Controllers\ApplicationsController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ForgotPasswordController;
-use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\VerificationController;
 
 
 //---------------------------------------------ADMIN---------------------------------------------------------------

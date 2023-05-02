@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\verificationEmailPage;
 use App\Http\Controllers\VerificationController;
 
 /*
@@ -18,13 +19,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/verification-page', function () {
-    return view('verification_page');
-});
 
 
 
 
-Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+//Auth::routes();
+
+Route::get('/verify', [verificationEmailPage::class, 'index'])->name('verify');

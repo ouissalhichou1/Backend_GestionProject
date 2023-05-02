@@ -26,11 +26,10 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->registerPolicies();
-
+       $this->registerPolicies();
        VerifyEmail::toMailUsing(function ($notifiable, $verificationUrl) {
         return (new MailMessage)
-            ->subject('Verify Your Email Address')
+            ->subject(' Verify Your Email Address')
             ->line('Please click the button below to verify your email address.')
             ->action('Verify Email Address', $verificationUrl);
     });

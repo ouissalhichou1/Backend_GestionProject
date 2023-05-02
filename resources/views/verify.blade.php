@@ -1,22 +1,15 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header"></div>
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    {{ __('You are verified !') }}
-                </div>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Verification</title>
+    <style>
+        /* your CSS styles here */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Email Verification</h1>
+        <h2>{{ $message }}</h2>
     </div>
-</div>
-@endsection
+</body>
+</html>

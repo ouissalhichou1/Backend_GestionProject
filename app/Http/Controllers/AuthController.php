@@ -67,7 +67,6 @@ class AuthController extends Controller
                 'filiere'=>'string|max:255',
                 'specialite' =>'string|max:255',
             ]);
-    
         $user = User::create([
             'name'=>$request->name,
             'surname'=>$request->surname,
@@ -79,9 +78,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'email_verification_token' => Str::random(40),
         ]);
-    
         event(new Registered($user));
-        Mail::to($user->email)->send(new VerifyEmail($user));
         return response()->json([
             'status' => 'success',
             'message' => 'Registered successfully! Please verify your email address.',

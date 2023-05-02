@@ -16,7 +16,7 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['id','name','surname','email', 'password','code', 'specialite','apogee', 'filiere','email_verification_token'];
+    protected $fillable = ['id','name','surname','email', 'password','code', 'specialite','apogee', 'filiere','email_verified_at','email_verification_token'];
     protected $table = 'users';
 
     public function roles()

@@ -17,7 +17,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HELLO = '/HELLO';
+    //public const HELLO = '/HELLO';
     public const VERIFY  = '/verify';
 
     /**
