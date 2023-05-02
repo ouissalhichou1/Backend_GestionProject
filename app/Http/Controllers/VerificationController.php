@@ -32,8 +32,8 @@ class VerificationController extends Controller
         $user->markEmailAsVerified();
         $user->forceFill(['email_verified_at' => Carbon::now()])->save();
 
-        return view('verification-page');
-        // response()->json(['message' => 'Email successfully verified.']);
+         return //view('verification-page');
+         response()->json(['message' => 'Email successfully verified.']);
     }
     
 

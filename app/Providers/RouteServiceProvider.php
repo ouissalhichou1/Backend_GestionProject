@@ -18,6 +18,7 @@ class RouteServiceProvider extends ServiceProvider
      * @var string
      */
     public const HELLO = '/HELLO';
+    public const VERIFY  = '/verify';
 
     /**
      * Define your route model bindings, pattern filters, and other route configuration.

@@ -82,7 +82,6 @@ class AuthController extends Controller
     
         event(new Registered($user));
         Mail::to($user->email)->send(new VerifyEmail($user));
-        
         return response()->json([
             'status' => 'success',
             'message' => 'Registered successfully! Please verify your email address.',

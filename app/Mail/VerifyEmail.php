@@ -28,7 +28,7 @@ class VerifyEmail extends Mailable
                 'verification.verify', Carbon::now()->addMinutes(60), 
                 ['id' => $this->user->getKey(), 'hash' => $this->user->email_verification_token]
             );
-            $buttonUrl = URL::to('/verification-page');
+            $buttonUrl = URL::to('/verify-email');
             
             return (new MailMessage)
                 ->subject('Verify Your Email Address')

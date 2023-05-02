@@ -26,7 +26,9 @@ class VerificationController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HELLO;
+    //protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = RouteServiceProvider::VERIFY;
+
 
     /**
      * Create a new controller instance.
@@ -39,21 +41,23 @@ class VerificationController extends Controller
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
+
     public function verify(Request $request)
-{$user = User::findOrFail($request->route('id'));
+    {
+        $user = User::findOrFail($request->route('id'));
 
-    if (! hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
-        throw new AuthorizationException;
+        if (! hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
+            throw new AuthorizationException;
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email already verified.']);
+        }
+
+        $user->markEmailAsVerified();
+        $user->forceFill(['email_verified_at' => Carbon::now()])->save();
+
+        return //view('verification-page');
+         response()->json(['message' => 'Email successfully verified.']);
     }
-
-    if ($user->hasVerifiedEmail()) {
-        return response()->json(['message' => 'Email already verified.']);
-    }
-
-    $user->markEmailAsVerified();
-    $user->forceFill(['email_verified_at' => Carbon::now()])->save();
-
-    return redirect('/verification_page');
-}
-
 }
