@@ -48,6 +48,20 @@ return [
             'role' => 'user_role',
 
         ],
+        'admin' => [
+            'driver' => 'jwt',
+            'provider' => 'admins',
+        ],
+    
+        'professor' => [
+            'driver' => 'jwt',
+            'provider' => 'professors',
+        ],
+    
+        'student' => [
+            'driver' => 'jwt',
+            'provider' => 'students',
+        ],
     ],
 
     /*
@@ -72,11 +86,20 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+    
+        'professors' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+    
+        'students' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
     ],
 
     /*

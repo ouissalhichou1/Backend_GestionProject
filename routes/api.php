@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FileController;
@@ -8,27 +9,19 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\GroupsController;
 use App\Http\Controllers\ProjectsController;
+use App\Http\Controllers\AuthAdminController;
 use App\Http\Controllers\InvitationsController;
 use App\Http\Controllers\ApplicationsController;
+use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ForgotPasswordController;
-use App\Http\Controllers\VerificationController;
 
 
 //---------------------------------------------ADMIN---------------------------------------------------------------
+Route::middleware('auth:admin')->group(function () {
+    // Routes for admin
 
-Route::post('Admin/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');// not done yet
-Route::post('Admin/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');// not done yet
 
-Route::group(['middleware' => ['jwt.auth']], function () {
-    //Route::post('Admin/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-    //Route::post('Admin/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');
-
-});
-Route::post('/Admin/User/Professor/Save', [UsersController::class,'SaveUser'])
-->middleware(CheckRole::class . ':admin');//done
-
-Route::post('/Admin/User/Student/Save', [UsersController::class,'SaveUser']);//done
 
 Route::post('/Admin/User/Student/Delete', [UsersController::class,'DeleteEtudiant']);//done
 
@@ -44,6 +37,24 @@ Route::get('/Admin/Project/List', [ProjectsController::class, 'getProjects']);//
 
 Route::post('/Admin/Group/Delete/',[GroupsController::class,'DeleteGroup']);//done
 
+});
+Route::post('/Admin/User/Professor/Save', [UsersController::class,'SaveUser']);//done
+
+Route::middleware(['auth:api', 'role:admin'])->post('/Admin/User/Student/Save', [UsersController::class,'SaveUser']);
+
+Route::post('/Admin/login',[AuthAdminController::class,'login']);
+
+
+
+Route::post('Admin/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');// not done yet
+Route::post('Admin/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');// not done yet
+
+Route::group(['middleware' => ['jwt.auth']], function () {
+    //Route::post('Admin/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    //Route::post('Admin/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');
+
+});
+
 
 //------------------------------------------USER-------------------------------------------------------------
 
@@ -55,7 +66,6 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('me', 'me');//done
 
 });
-
 Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
 
 

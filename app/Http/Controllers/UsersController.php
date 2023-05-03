@@ -35,6 +35,7 @@ class UsersController extends Controller
     }
     public function SaveUser(Request $request)
     {
+        $this->middleware('role:admin');
         $user = new User();
         $user->name =$request->input('name');
         $user->surname =$request->input('surname');

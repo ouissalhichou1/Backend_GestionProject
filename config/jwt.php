@@ -136,9 +136,12 @@ return [
     */
 
     'required_claims' => [
-        'sub' => 'user_id',
-        'role' => 'user_role',
-        'exp' => 'token_expiration',
+        'iss',
+        'iat',
+        'exp',
+        'nbf',
+        'sub',
+        'jti',
     ],
 
     /*

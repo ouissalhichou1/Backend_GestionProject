@@ -14,15 +14,19 @@ return new class extends Migration
     public function up()
     {
         DB::unprepared(
-            
-        'CREATE TRIGGER default_role
-           AFTER INSERT
-           ON users
-           FOR EACH ROW
-           BEGIN
-         INSERT INTO role_users (user_id, role_id)
-         VALUES (NEW.id, IF(NEW.apogee IS NULL, 2, 3));
-        END');
+        ' CREATE TRIGGER insert_role
+        AFTER INSERT ON users
+        FOR EACH ROW
+        BEGIN
+            IF NEW.email = "Admin@uae.ac.ma" THEN
+                INSERT INTO role_users (user_id, role_id) VALUES (NEW.id, 1);
+            ELSEIF NEW.apogee IS NULL THEN
+                INSERT INTO role_users (user_id, role_id) VALUES (NEW.id, 2);
+            ELSE
+                INSERT INTO role_users (user_id, role_id) VALUES (NEW.id, 3);
+            END IF;
+        END;');
+
     }
 
     /**

@@ -66,33 +66,10 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
      * @return array
      */
     public function getJWTCustomClaims(){
-      /*  
-        $fillableAttributes = $this->getFillableAttributes();
-        $role = $this->roles;
-        $roleArray =$role->toArray();
-        // $role=array_map(function ($value) {return (array)$value;}, $role);
-        //echo gettype($role);
-        //print_r($roleArray);
-        // print_r($fillableAttributes);
         return [
-        $fillableAttributes["id"],
-        $fillableAttributes["name"],
-        $fillableAttributes["surname"],
-        $role[0]["RoleName"],
-        //$role->roleName,
-        //$fillableAttributes->userRoles
-        ];*/
-        }
+           // 'role' => $this->role,
+        ];
+    }
     
-    /*public function getFillableAttributes()
-    {
-        $fillableAttributes = [];
-
-        foreach ($this->getFillable() as $fillableAttribute) {
-            $fillableAttributes[$fillableAttribute] = $this->$fillableAttribute;
-        }
-
-        return $fillableAttributes;
-    }*/
    
 }

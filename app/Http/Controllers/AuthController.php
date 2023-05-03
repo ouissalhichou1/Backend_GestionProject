@@ -7,6 +7,7 @@ use App\Mail\VerifyEmail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\CustomResponse;
+use Illuminate\Support\Carbon;
 use App\Models\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -23,37 +24,44 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {   
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-        $credentials = $request->only('email', 'password');
-        $token = Auth::attempt($credentials);
-        // check if the user is registerd!!
-        if (!$token) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Unauthorized',
-            ], 401);
-        }
-        //check if the user verified email
-        if (!$user->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Please verify your email address.'], 403);
-        }
-       $user = Auth::user();
+{   
+    $request->validate([
+        'email' => 'required|string|email',
+        'password' => 'required|string',
+    ]);
+    $credentials = $request->only('email', 'password');
+    $token = Auth::attempt($credentials);
+    // check if the user is registered!!
+    if (!$token) {
         return response()->json([
-                'status' => 'success',
-                'id_user'=>$user->id,
-                'name'=>$user->name,
-                'surname'=>$user->surname,
-                'role'=>$user->roles[0]->RoleName,
-                'authorisation' => [
-                    'token' => $token,
-                    'type' => 'bearer',
-                ]
-                ]);
+            'status' => 'error',
+            'message' => 'Unauthorized',
+        ], 401);
     }
+    //check if the user verified email
+    $user = Auth::user();
+    if (!$user->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Please verify your email address.'], 403);
+    }
+
+    // Add custom claim for user role
+    $customClaims = ['role' => $user->roles[0]->RoleName];
+    $token = Auth::claims($customClaims)->refresh();
+
+    return response()->json([
+        'status' => 'success',
+        'id_user' =>$user->id,
+        'name' => $user->name,
+        'surname' => $user->surname,
+        'role' => $user->roles[0]->RoleName,
+        'authorisation' => [
+            'token' => $token,
+            'type' => 'bearer',
+        ]
+    ]);
+    }
+
+
 
     public function register(Request $request){
 
@@ -79,6 +87,7 @@ class AuthController extends Controller
             'email_verification_token' => Str::random(40),
         ]);
         event(new Registered($user));
+
         return response()->json([
             'status' => 'success',
             'message' => 'Registered successfully! Please verify your email address.',
@@ -86,6 +95,7 @@ class AuthController extends Controller
             'name'=>$user->name,
             'surname'=>$user->surname,
             'role'=>$user->roles[0]->RoleName,
+
         ]);
     }
     
