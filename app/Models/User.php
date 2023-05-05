@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\File;
 use App\Models\Todo;
 use App\Models\Group;
+use App\Models\Annonce;
 use App\Models\Project;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -35,6 +36,11 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
     {
         return $this->hasMany(Todo::class);
     }
+    public function annonce()
+    {
+        return $this->hasMany(Annonce::class);
+    }
+    
     public function group()
     {
         return $this->belongsTo(Group::class);

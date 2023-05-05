@@ -12,6 +12,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 class VerificationController extends Controller
 {
     use VerifiesEmails;
+
     protected $redirectTo = '/verify';
 
     public function verify(Request $request)

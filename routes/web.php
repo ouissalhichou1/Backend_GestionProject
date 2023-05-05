@@ -20,10 +20,6 @@ Route::get('/', function () {
 });
 
 
-
-
-
-
 //Auth::routes();
 
 Route::get('/verify', [verificationEmailPage::class, 'index'])->name('verify');

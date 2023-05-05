@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\User;
+use App\Models\RoleUser;
+
 return [
 
     /*
@@ -44,23 +47,24 @@ return [
         'api' => [
             'driver' => 'jwt',
             'provider' => 'users',
-            'identifier' => 'user_id',
-            'role' => 'user_role',
 
         ],
-        'admin' => [
+        'Admin' => [
             'driver' => 'jwt',
-            'provider' => 'admins',
+            'provider' => 'users',
+            'role' => 'Admin',
         ],
-    
+
         'professor' => [
             'driver' => 'jwt',
-            'provider' => 'professors',
+            'provider' => 'users',
+            'role' => 'Ens',
         ],
     
         'student' => [
             'driver' => 'jwt',
-            'provider' => 'students',
+            'provider' => 'users',
+            'role' => 'Etu',
         ],
     ],
 
@@ -84,21 +88,11 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => User::class,
         ],
-        'admins' => [
+        'roles' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
-        ],
-    
-        'professors' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\User::class,
-        ],
-    
-        'students' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => RoleUser::class,
         ],
     ],
 

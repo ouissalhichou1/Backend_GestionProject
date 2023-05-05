@@ -17,7 +17,7 @@ return new class extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('surname');
-            $table->integer('code')->nullable();
+            $table->integer('code')->unique()->nullable();
             $table->string('specialite')->nullable();
             $table->integer('apogee')->unique()->nullable();
             $table->string('filiere')->nullable();

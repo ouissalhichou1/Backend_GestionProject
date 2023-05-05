@@ -2,140 +2,70 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\RoleUser;
+use App\Models\File;
+use App\Models\Project;
+use App\Models\RendezVous;
 use Illuminate\Http\Request;
 use App\Models\CustomResponse;
 use App\Models\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
-
+use Illuminate\Support\Facades\Storage;
 
 class UsersController extends Controller
 {
-    public function ListUsersWithTheirRole(Request $request)
-    { 
-        $users = User::all();
+    function GetAllProjects(){
+        $projects = Project::all();
         $data = [];
-
-        foreach ($users as $user) {
-         $role_id = DB::select('select role_id from role_users where user_id = ?', [ $user->id]);
-         $role_id = array_map(function ($value){return (array)$value;}, $role_id);
-         $role_Name = DB::select('select RoleName from roles where id = ?', [$role_id[0]["role_id"]]);
-         $role_Name = array_map(function ($value){return (array)$value;}, $role_Name);
-         $user->Role = $role_Name[0]["RoleName"];
-         $data[] = $user;
-         }
-
-         return response()->json([
-             'status' => 'success',
-             'data' => $data,
-             ]);
-    }
-    public function SaveUser(Request $request)
-    {
-        $this->middleware('role:admin');
-        $user = new User();
-        $user->name =$request->input('name');
-        $user->surname =$request->input('surname');
-        $user->specialite =$request->input('specialite');
-        $user->code =$request->input('code');
-        $user->apogee =$request->input('apogee');
-        $user->filiere =$request->input('filiere');
-        $user->email =$request->input('email');
-        $user->password = Hash::make($request->input('password'));
-        $user->save();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User created successfully',
-            'id_user'=>$user->id,
-            'name'=>$user->name,
-            'surname'=>$user->surname,
-            'role'=>$user->roles[0]->RoleName,
-        ]);
-
-
-    }
-
-    public function SaveStudentsFromFile(Request $request){
-
-        if ($request->file('listeEtudiant')->isValid()) {  // test if the file is valid
-            $file = $request->file('listeEtudiant');      // then get it from the request
-            if($file->extension() !== 'csv') {
-                return CustomResponse::buildResponse("file format not acceptable", '', 406);
-            }
-            // before reading from the file we need to open it to get the stream of data so we can read from it using fgetcsv
-            $stream = fopen($file, 'r'); // here we open the file
-            $data = array();
-            $header = null;
-            if($stream !== false) { // then we check if this file is opened successfully
-                while (($row = fgetcsv($stream, 1000, ",")) !== false) {
-                    // then we keep reading line by line until we reach the end
-                    if(!$header) {
-                        $header = $row;
-                    } else {
-                        $data[] = array_combine($header, $row);
-                    }
-                }
-                // after we read all the lines we need to close the stream
-                fclose($stream);
-            }
-            $insertQuery = DB::table("users")->insert($data);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Users created successfully',
-            ]);
-    
+        foreach ($projects as $project) {
+            $result = DB::select('select name ,surname,email from users where id = ?', [ $project->id_user]);
+            $result = array_map(function ($value) {return (array)$value;}, $result);
+            $project->owner_name = $result[0]["name"]." ".$result[0]["surname"];
+            $project->owner_email =$result[0]["email"];
+            $data[] = $project;
         }
+        return response()->json([
+            'status' => '200',
+            'message'=>'All Projects',
+            'data' => $data,
+        ]);
     }
-
-    public function SaveProfessorsFromFile(Request $request)
-    {
-        if ($request->file('Professors_uae')->isValid()) {  // test if the file is valid
-            $file = $request->file('Professors_uae');      // then get it from the request
-            if($file->extension() !== 'csv') {
-                return CustomResponse::buildResponse("file format nor acceptable", '', 406);
-            }
-            // before reading from the file we need to open it to get the stream of data so we can read from it using fgetcsv
-            $stream = fopen($file,'r'); // here we open the file
-            $data = array();
-            $header = null;
-            if($stream !== false) { // then we check if this file is opened successfully
-                while (($row = fgetcsv($stream, 1000, ",")) !== false) {
-                    // then we keep reading line by line until we reach the end
-                    if(!$header) {
-                        $header = $row;
-                    } else {
-                        $data[] = array_combine($header, $row);
-                    }
-                }
-                // after we read all the lines we need to close the stream
-                fclose($stream);
-            }
-            $insertQuery = DB::table("users")->insert($data);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Users created successfully',
-            ]);
+    public function downloadZipFile(){
+        $type ='ConseilPFE.zip';
+        $id = DB::select('select id from file where type = ? ',[$type]);
+        $id = array_map(function ($value) {return (array)$value;}, $id);
+        $id = $id[0]["id"];
+        $zipFile = File::findOrFail($id);
+        $file = Storage::disk('public')->get($zipFile->path);
+        return response($file, 200)->header('Content-Type', 'application/zip')
+        ->header('Content-Disposition', 'attachment; filename="' . $zipFile->name . '"');
+    }
     
-        }
+    function CreateMeeting(Request $request , $id_user){
+
+        $rendez_vous = new RendezVous;
+        $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
+        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
+        $id_group = $id_group[0]["id"];
+        $id_project = DB::select('select id_project from applications where id_group = ?',[$id_group]);
+        $id_project = array_map(function ($value) {return (array)$value;}, $id_project);
+        $id_project = $id_project[0]["id_project"];
+        $to = DB::select('select id_user from projects where id = ?', [$id_project]);
+        $to = array_map(function ($value) {return (array)$value;}, $to);
+        $to = $to[0]["id_user"];
+        $rendez_vous->creator = $id_user;
+        $rendez_vous->date =$request->input('date');
+        $rendez_vous->heure =$request->input('heure');
+        $rendez_vous->objet = $request->input('objet');
+        $rendez_vous->to =$to;
+        $rendez_vous->save();
+        return response()->json([
+            'status' => '200',
+            'message'=>'meet created successfully',
+            'project' => $rendez_vous,
+        ]);
+
     }
 
-    public function DeleteEtudiant(Request $request){
-        $user = DB::delete('delete from users where apogee = ?',[$request->apogee]);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Users deleted successfully',
-        ]);
-    }
-
-    public function DeleteProfessor(Request $request){
-        $user = DB::delete('delete from users where code = ?',[$request->code]);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Users deleted successfully',
-        ]);
-    }
 }
 

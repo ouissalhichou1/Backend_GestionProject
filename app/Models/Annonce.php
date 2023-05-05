@@ -10,4 +10,9 @@ class Annonce extends Model
     use HasFactory;
     protected $fillable = ['id','id_user','title','message','id_group'];
     protected $table = 'annonce';
+
+    public function users()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
 }

@@ -32,7 +32,6 @@ class ApplicationsController extends Controller
         $response = $request->response;
         $applications = DB::update('update applications set response = ? where id = ?', [$response , $id_application]);
         $updated_application = Application::find($applications);
-        
     }
     public function DeleteApplication(Request $request, $id_application)
     {
@@ -51,14 +50,5 @@ class ApplicationsController extends Controller
         ->get();
         return CustomResponse::buildResponse("Found",$results ,302);
     }
-    public function GetMyProjects(Request $request , $id_project){/////neeeed change
-
-        $results = Db::table("applications")
-        ->join('projects', 'projects.id', '=', 'applications.id_project')
-        ->join('groups', 'groups.id', '=', 'applications.id_group')
-        ->select('groups.*','projects.sujet')
-        ->where('projects.id', '=',$id_project)
-        ->get();
-        return CustomResponse::buildResponse("Found",$results ,302);
-    }
+    
 }

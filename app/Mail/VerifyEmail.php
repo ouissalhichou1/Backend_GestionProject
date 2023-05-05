@@ -13,8 +13,8 @@ use Illuminate\Notifications\Messages\MailMessage;
 class VerifyEmail extends Mailable
 {
     use Queueable, SerializesModels;
-
     public $user;
+
     public function __construct(User $user)
     {
         $this->user = $user;
@@ -22,7 +22,7 @@ class VerifyEmail extends Mailable
 
     public function build()
     {
-            return $this->view('emails.verify-email');
+        return $this->view('emails.verify-email');
     }
     
     
