@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Application;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Project extends Model
 {
@@ -19,8 +20,9 @@ class Project extends Model
     {
         return $this->belongsToMany('App\Models\Group','application')->withPivot('accepted');
     }
-    public function file()
+    
+    public function applications()
     {
-        return $this->hasMany(file::class);
+        return $this->hasMany(Application::class);
     }
 }

@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Todo extends Model
+class Task extends Model
 {
     use HasFactory;
     protected $fillable = ['id','id_user','title','description'];
-    protected $table = 'todo';
+    protected $table = 'task';
     
     public function users()
     {

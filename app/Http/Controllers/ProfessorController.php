@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Annonce;
 use App\Models\Project;
 use App\Models\RendezVous;
 use Illuminate\Http\Request;
@@ -118,6 +119,16 @@ class ProfessorController extends Controller
             'project' => $results,
         ]);
     }
+    function ResponseforApplication(Request $request, $id_user){
+        $id_project = $request->id_project;
+        $id_group = $request->id_group;
+        $response = $request->response;
+        $applications = DB::update('update applications set response = ? where id_group= ?and id_project =?', [$response ,$id_group,$id_project]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'done',
+        ]); 
+    }
     function GetMyGroups(Request $request , $id_user){
         $results = DB::table('applications')
             ->join('groups', 'groups.id', '=', 'applications.id_group')
@@ -157,22 +168,24 @@ class ProfessorController extends Controller
     function CreateMeeting(Request $request , $id_user){
 
         $rendez_vous = new RendezVous;
-        $rendez_vous ->id_user = $id_user;
+        $rendez_vous ->creator = $id_user;
         $rendez_vous->date =$request->input('date');
         $rendez_vous->heure =$request->input('heure');
         $rendez_vous->objet = $request->input('objet');
-        $id_project = DB::select('select id from projects where sujet = ? and id_user =?',[$request->input('sujet_pfe'),$id_user]);
-        $id_project = array_map(function ($value) {return (array)$value;}, $id_project);
-        $id_project = $id_project[0]["id"];
-        $id_project = DB::select('select id_group from applications where id_project = ? and response =?',[$id_project,'accepted']);
-        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
-        $id_group = $id_group[0]["id"];
+        $id_project = DB::table('projects')
+                    ->where('sujet', $request->input('sujet_pfe'))
+                   ->where('id_user', $id_user)
+                    ->value('id');
+        $id_group = DB::table('applications')
+                     ->where('id_project', $id_project)
+                     ->where('response', 'accepted')
+                     ->value('id_group');
         $rendez_vous->to =$id_group;
         $rendez_vous->save();
         return response()->json([
             'status' => '200',
             'message'=>'meet created successfully',
-            'project' => $project,
+            'project' => $rendez_vous,
         ]);
 
     }
@@ -188,7 +201,54 @@ class ProfessorController extends Controller
         ]);
     }
     function MyMeetingToAttend(Request $request, $id_user){
-      
+        $rendez_vous = DB::table('rendez_vous')
+        ->select('*')
+        ->where('to', $id_user)
+        ->get();
+        return response()->json([
+            'status' => '200',
+            'message' => 'Sujets fetched',
+            'sujets' => $rendez_vous,
+        ]);
+    }
+    function ResponeForMyMeetingToAttend(Request $request, $id_user){
+        $rendez_vous = DB::update('update rendez_vous set response = ? where id_user = ? and id = ?',[$id_user,$request->response]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'done',
+        ]);    
+    }
+    function SendAnnonceToGroup(Request $request, $id_user){
+        $id_project = DB::table('projects')
+                    ->where('sujet', $request->input('sujet_pfe'))
+                   ->where('id_user', $id_user)
+                    ->value('id');
+        $id_group = DB::table('applications')
+                     ->where('id_project', $id_project)
+                     ->where('response', 'accepted')
+                     ->value('id_group');
+        $annonce = new Annonce;
+        $annonce->title = $request->input('title');;
+        $annonce->message = $request->input('message');;
+        $annonce->id_group = $id_group;
+        $annonce->id_user = $id_user;
+        $annonce->save();
+        return response()->json([
+            'status' => '200',
+            'message'=>'annonce created successfully',
+            'project' => $annonce,
+        ]);
+
+
+    }
+    function GetMyAnnonce(Request $request, $id_user){
+        $result=DB::select('select * from annonce where id_user = ?',[$id_user]);
+        return response()->json([
+            'status' => '200',
+            'message'=>'annonce fetched',
+            'project' => $result,
+        ]);
+
     }
     
 

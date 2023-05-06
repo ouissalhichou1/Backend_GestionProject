@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use App\Models\File;
-use App\Models\Todo;
+use App\Models\task;
 use App\Models\Group;
 use App\Models\Annonce;
 use App\Models\Project;
+use App\Models\Application;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -32,9 +33,9 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
     {
         return $this->hasMany(File::class);
     }
-    public function todo()
+    public function task()
     {
-        return $this->hasMany(Todo::class);
+        return $this->hasMany(task::class);
     }
     public function annonce()
     {
@@ -44,6 +45,10 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
     public function group()
     {
         return $this->belongsTo(Group::class);
+    }
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
     }
 
     

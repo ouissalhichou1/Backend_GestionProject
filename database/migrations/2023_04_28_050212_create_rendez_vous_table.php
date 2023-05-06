@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('objet');
             $table->integer('to')->unsigned();
             $table->foreign('to')->references('id')->on('users')->onDelete('cascade');
+            $table->string('response')->nullable();
             $table->timestamps();
         });
     }

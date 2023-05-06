@@ -10,9 +10,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\GroupsController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\StudentController;
-use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\ProfessorController;
-use App\Http\Controllers\InvitationsController;
 use App\Http\Controllers\ApplicationsController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ResetPasswordController;
@@ -50,43 +48,27 @@ Route::get('/Project/Applications/All/{id_user}',[ProfessorController::class,'Ge
 Route::get('/Groups/All/{id_user}',[ProfessorController::class,'GetMyGroups']);
 Route::post('/RendezVous/{id_user}',[ProfessorController::class,'CreateMeeting']);
 Route::get('/Sujets/All/{id_user}',[ProfessorController::class,'DropDownSujets']);
+Route::get('/RendezVous/All/{id_user}',[ProfessorController::class,'MyMeetingToAttend']);
+Route::post('/RendezVous/response/{id_user}',[ProfessorController::class,'ResponeForMyMeetingToAttend']);
+Route::post('/Application/Update/Response/{id_user}',[ApplicationsController::class,'ResponseforApplication']);
+Route::post('/Annonce/create/{id_user}',[ProfessorController::class,'SendAnnonceToGroup']);
+Route::get('/Annonce/get/all/{id_user}',[ProfessorController::class,'GetMyAnnonce']);
 
 //Student Routes
-Route::post('/Group/Create/{id_user}',[StudentController::class,'CreateGroup']);//doone
+Route::post('/Group/Create/{id_user}',[StudentController::class,'CreateGroup']);
 Route::get('/Project/All', [StudentController::class, 'GetProjectsToApplyTo']);
-Route::post('/RendezVous/{id_user}',[UsersController::class,'CreateMeeting']);
+Route::post('/Rendezvous/{id_user}',[StudentController::class,'CreateMeetingWithMySuperviser']);
+Route::post('/Join/Group/{id_user}',[StudentController::class,'JoinGroup']);
+Route::post('/Response/Demandes/{id_user}',[StudentController::class,'RespondToInvitation']);
+Route::get('/User/Quit/{id_student}',[StudentController::class,'QuitGroup']);
+Route::post('/Project/Application/{id_user}',[StudentController::class,'ApplyToProject']);
+Route::get('/Applications/All/{id_student}',[StudentController::class,'GetMyApplications']);
+Route::post('/Application/delete/{id_student}',[StudentController::class,'DeleteApplication']);
+Route::post('/Annonce/{id_user}',[StudentController::class,'GetAnnonceFromSuperviser']);
+Route::post('/Task/Crate/{id_user}',[StudentController::class,'CreateTask']);
+Route::post('/Task/Modify/{user_id}',[StudentController::class,'ModifyTask']);
+Route::post('/Task/delete/{user_id}',[StudentController::class,'DeleteTask']);
+Route::get('/Task/all/{user_id}',[StudentController::class,'GetMyTasks']);
 
 
 
-
-
-
-
-
-
-Route::get('/Group/User/Quit/{id_student}',[GroupsController::class,'QuitGroup']);///////////////////////////
-Route::post('/Project/Application/{id_user}',[ApplicationsController::class,'SaveApplication']);//doone
-Route::post('/Group/Save/{id_user}',[GroupsController::class,'SaveGroup']);//doone
-
-
-
-
-
-Route::post('/Application/Update/Response/{id_application}',[ApplicationsController::class,'ResponseforApplication']);
-Route::post('/Application/delete/{id_application}',[ApplicationsController::class,'DeleteApplication']);//******
-Route::get('/User/Project/Applications/All/{id_student}',[ApplicationsController::class,'GetMyApplications']);
-Route::post('/File/Save{id_user}',[FileController::class,'SaveFile']);
-Route::post('/File/Delete/{id_file}',[FileController::class,'DeleteFile']);
-Route::post('/Group/Admin/Invitation/user/{id_group_admin}',[InvitationsController::class,'SendInvitation']);
-
-Route::get('/invitations', [InvitationsController::class, 'index']);
-Route::post('/invitations', [InvitationsController::class, 'store']);
-Route::get('/invitations/{id}', [InvitationsController::class, 'show']);
-Route::put('/invitations/{id}', [InvitationsController::class, 'update']);
-Route::delete('/invitations/{id}', [InvitationsController::class, 'destroy']);
-
-Route::get('/rendezVous', [RendezVousController::class, 'index']);
-Route::get('/rendezVous/{id}', [RendezVousController::class, 'show']);
-Route::post('/rendezVous', [RendezVousController::class, 'store']);
-Route::put('/rendezVous/{id}', [RendezVousController::class, 'update']);
-Route::delete('/rendezVous/{id}', [RendezVousController::class, 'destroy']);

@@ -18,7 +18,7 @@ class AdminController extends Controller
     {
         $this->middleware('check.role:Admin');
     }
-    public function SaveUser(Request $request){
+     function SaveUser(Request $request){
 
         $request->validate([
                 'name' => 'required|string|max:255',
@@ -52,7 +52,7 @@ class AdminController extends Controller
 
         ]);
     }
-    public function DeleteEtudiant(Request $request){
+    function DeleteEtudiant(Request $request){
 
         $user = DB::delete('delete from users where apogee = ?',[$request->apogee]);
         return response()->json([
@@ -60,14 +60,14 @@ class AdminController extends Controller
             'message' => 'Users deleted successfully',
         ]);
     }
-    public function DeleteProfessor(Request $request){
+    function DeleteProfessor(Request $request){
         $user = DB::delete('delete from users where code = ?',[$request->code]);
         return response()->json([
             'status' => 'success',
             'message' => 'Users deleted successfully',
         ]);
     }
-    public function uploadZipFile(Request $request)
+    function uploadZipFile(Request $request)
     {
         $file = $request->file('zip_file');
         $fileName = $file->getClientOriginalName();
@@ -80,7 +80,7 @@ class AdminController extends Controller
         $zipFile->save();
         return response()->json(['message' => 'Zip file uploaded successfully']);
     }
-    public function DeleteGroup(Request $request)
+    function DeleteGroup(Request $request)
     {
       $admin_apogee = $request->apogee;
       $admin_id = DB::select('select id from users where apogee = ?',[$admin_apogee]);
@@ -91,6 +91,23 @@ class AdminController extends Controller
          return response()->json([
           'status' => 'deleted successfully',
           ]);
+    }
+    function ListUsersWithTheirRole(Request $request, $id_student)
+    {
+        $users = User::all();
+       $data =[] ;
+       foreach ($groups as $group) {
+        $role_id = DB::select('select * from users where user_id = ?', [ $user->id]);
+        $role_id = array_map(function ($value) {return (array)$value;}, $role_id);
+        $role_Name = DB::select('select RoleName from roles where id = ?', [$role_id[0]["role_id"]]);
+        $role_Name = array_map(function ($value) {return (array)$value;}, $role_Name);
+        $user->Role = $role_Name[0]["RoleName"];
+        $data[] = $user;
+         }
+        return response()->json([
+         'status' => 'created success',
+          'group' => $group,
+        ]);
     }
    
     
