@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\File;
 use App\Models\Task;
 use Illuminate\Http\Request;
 
@@ -400,6 +401,54 @@ class StudentController extends Controller
             'message' => 'Task deleted successfully.',
         ]);
     }
+    function uploadFile(Request $request){
+        // Validate the uploaded file
+        $request->validate([
+            'file' => 'required|file',
+        ]);
+        // Store the file in the storage/app/public/files directory
+        $path = $request->file('file')->store('public/files');
+        // Get the file name
+        $fileName = $request->file('file')->getClientOriginalName();
+        // Create a new entry in the files table
+        $file = new File;
+        $file->path = $path;
+        $file->type = $request->inpute('type');
+        $file->name = $fileName;
+        $file->user_id = auth()->user()->id;
+        $file->save();
+
+        return response()->json([
+            'status' => 'success',
+            'file' => $file,
+        ]);
+    }
+    function GetAllProgressionVideo(Request $request,$id_user){
+        $userId = $id_user;
+        // Retrieve the user's filliere
+        $userFilliere = User::findOrFail($userId)->filliere;
+    
+        // Retrieve the video files that match the specified conditions
+        $files = File::where('type', 'progression')
+                     ->whereHas('user', function ($query) use ($userFilliere) {
+                         $query->where('filliere', $userFilliere);
+                     })
+                     ->get();
+    
+        // Extract the video URLs from the files
+        $videoUrls = $files->map(function ($file) {
+            return $file->path;
+        });
+    
+        return response()->json([
+            'status' => 'success',
+            'video_urls' => $videoUrls,
+        ]);
+    }
+    
+    
+
+    
 
 
     

@@ -4,14 +4,10 @@ use Illuminate\Http\Request;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\FileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\GroupsController;
-use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\ProfessorController;
-use App\Http\Controllers\ApplicationsController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ForgotPasswordController;
@@ -53,6 +49,8 @@ Route::post('/RendezVous/response/{id_user}',[ProfessorController::class,'Respon
 Route::post('/Application/Update/Response/{id_user}',[ApplicationsController::class,'ResponseforApplication']);
 Route::post('/Annonce/create/{id_user}',[ProfessorController::class,'SendAnnonceToGroup']);
 Route::get('/Annonce/get/all/{id_user}',[ProfessorController::class,'GetMyAnnonce']);
+Route::post('/files/Pregression/all/', [StudentController::class, 'GetAllProgressionVideo']);
+
 
 //Student Routes
 Route::post('/Group/Create/{id_user}',[StudentController::class,'CreateGroup']);
@@ -69,6 +67,10 @@ Route::post('/Task/Crate/{id_user}',[StudentController::class,'CreateTask']);
 Route::post('/Task/Modify/{user_id}',[StudentController::class,'ModifyTask']);
 Route::post('/Task/delete/{user_id}',[StudentController::class,'DeleteTask']);
 Route::get('/Task/all/{user_id}',[StudentController::class,'GetMyTasks']);
+Route::post('/files/Upload', [StudentController::class, 'uploadFile']);
+Route::post('/files/Pregression/all/{id_user}', [StudentController::class, 'GetAllProgressionVideo']);
+
+
 
 
 

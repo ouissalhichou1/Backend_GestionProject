@@ -250,6 +250,27 @@ class ProfessorController extends Controller
         ]);
 
     }
+    function GetAllProgressionVideo(Request $request) {
+        // Retrieve the user's filliere
+        $userFilliere = $request->input('filiere');
+    
+        // Retrieve the video files that match the specified conditions
+        $files = File::where('type', 'progression')
+                     ->whereHas('user', function ($query) use ($userFilliere) {
+                         $query->where('filliere', $userFilliere);
+                     })
+                     ->get();
+    
+        // Extract the video URLs from the files
+        $videoUrls = $files->map(function ($file) {
+            return $file->path;
+        });
+    
+        return response()->json([
+            'status' => 'success',
+            'video_urls' => $videoUrls,
+        ]);
+    }
     
 
     
