@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 
 use App\Models\User;
+use League\Csv\Writer;
 use App\Models\RoleUser;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\CustomResponse;
 use App\Models\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\QueryException;
 
 class AdminController extends Controller
@@ -18,39 +21,51 @@ class AdminController extends Controller
     {
         $this->middleware('check.role:Admin');
     }
-     function SaveUser(Request $request){
+    public function SaveUser(Request $request){
 
         $request->validate([
-                'name' => 'required|string|max:255',
-                'surname' =>'required|string|max:255',
-                'email' => 'required|string|email:|max:255',
-                'password' =>'required|string|min:6',
-                'code'=>'integer|min:3',
-                'apogee'=>'integer|min:8',
-                'filiere'=>'string|max:255',
-                'specialite' =>'string|max:255',
+            'name' => 'required|string|max:255',
+            'surname' =>'required|string|max:255',
+            'email' => 'required|string|email:|max:255',
+            'password' =>'required|string|min:6',
+            'code'=>'integer|min:3',
+            'apogee'=>'integer|min:8',
+            'filiere'=>'string|max:255',
+            'specialite' =>'string|max:255',
+        ]);
+    
+        try {
+            $user = User::create([
+                'name'=>$request->name,
+                'surname'=>$request->surname,
+                'code'=>$request->code,
+                'apogee'=>$request->apogee,
+                'filiere'=>$request->filiere,
+                'specialite' =>$request->specialite,
+                'email' =>$request->email,
+                'password' => Hash::make($request->password),
+                'email_verification_token' => Str::random(40),
             ]);
-        $user = User::create([
-            'name'=>$request->name,
-            'surname'=>$request->surname,
-            'code'=>$request->code,
-            'apogee'=>$request->apogee,
-            'filiere'=>$request->filiere,
-            'specialite' =>$request->specialite,
-            'email' =>$request->email,
-            'password' => Hash::make($request->password),
-            'email_verification_token' => Str::random(40),
-        ]);
-        event(new Registered($user));
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Registered successfully! Please verify your email address.',
-            'id_user'=>$user->id,
-            'name'=>$user->name,
-            'surname'=>$user->surname,
-            'role'=>$user->roles[0]->RoleName,
-
-        ]);
+            event(new Registered($user));
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Registered successfully! Please verify your email address.',
+                'id_user'=>$user->id,
+                'name'=>$user->name,
+                'surname'=>$user->surname,
+                'role'=>$user->roles[0]->RoleName,
+            ]);
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1062 && strpos($e->getMessage(), 'email')) {
+                return response()->json(['message' => 'The email must be unique'], 401);
+            } else if ($e->errorInfo[1] == 1062 && strpos($e->getMessage(), 'apogee')) {
+                return response()->json(['message' => 'The apogee must be unique'], 402);
+            } else if ($e->errorInfo[1] == 1062 && strpos($e->getMessage(), 'code')) {
+                return response()->json(['message' => 'The code must be unique'], 403);
+            } else {
+                return response()->json(['message' => 'An error occurred'], 500);
+            }
+        }
     }
     function DeleteEtudiant(Request $request){
         
@@ -95,9 +110,9 @@ class AdminController extends Controller
     function ListUsersWithTheirRole(Request $request)
     {
         $users = User::all();
-       $data =[] ;
-       foreach ($groups as $group) {
-        $role_id = DB::select('select * from users where user_id = ?', [ $user->id]);
+        $data =[] ;
+       foreach ($users as $user) {
+        $role_id = DB::select('select * from role_users where user_id = ?', [ $user->id]);
         $role_id = array_map(function ($value) {return (array)$value;}, $role_id);
         $role_Name = DB::select('select RoleName from roles where id = ?', [$role_id[0]["role_id"]]);
         $role_Name = array_map(function ($value) {return (array)$value;}, $role_Name);
@@ -109,7 +124,93 @@ class AdminController extends Controller
           'users' => $data,
         ]);
     }
+    function GetAllGroupsAndMembers()
+    {
+        $groups = DB::table('groups')->get();
+    
+        $data = [];
+    
+        foreach ($groups as $group) {
+            $groupData = [
+                'group_id' => $group->id,
+            ];
+    
+            $groupColumns = ['id_group_admin', 'id_user2', 'id_user3', 'id_user4', 'id_user5'];
+            $memberCount = 1;
+    
+            foreach ($groupColumns as $column) {
+                $memberId = $group->{$column};
+    
+                if ($memberId !== null) {
+                    $memberApogee = DB::table('users')->where('id', $memberId)->value('apogee');
+    
+                    if ($memberApogee) {
+                        $groupData["member_{$memberCount}"] = $memberApogee;
+                        $memberCount++;
+                    }
+                }
+            }
+    
+            $data[] = $groupData;
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'group_members' => $data,
+        ]);
+    }
+    function GetUserGroupDetails(){
+        $users = DB::table('users')
+            ->whereNotNull('apogee')
+            ->select('id', 'name', 'surname')
+            ->get();
+    
+        $response = [];
+    
+        foreach ($users as $user) {
+            $userId = $user->id;
+    
+            $group = DB::table('groups')
+                ->where(function ($query) use ($userId) {
+                    $query->where('id_group_admin', $userId)
+                        ->orWhere('id_user2', $userId)
+                        ->orWhere('id_user3', $userId)
+                        ->orWhere('id_user4', $userId)
+                        ->orWhere('id_user5', $userId);
+                })
+                ->select('id')
+                ->first();
+    
+            if ($group) {
+                $groupId = $group->id;
+    
+                $application = DB::table('applications')
+                    ->join('projects', 'applications.id_project', '=', 'projects.id')
+                    ->join('users', 'projects.id_user', '=', 'users.id')
+                    ->where('applications.id_group', $groupId)
+                    ->select('projects.id_user', 'users.name', 'users.surname')
+                    ->first();
+    
+                if ($application) {
+                    $response[] = [
+                        'user_id' => $userId,
+                        'user_name' => $user->name." ".$user->surname,
+                        'project_owner_name' => $application->name." ".$application->surname,
+                    ];
+                }
+            }
+        }
+    
+        return response()->json($response);
+    }
+    
+    
+
+}
+
+    
+    
+
    
     
     
-}

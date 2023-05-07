@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('id_project')->unsigned();
             $table->foreign('id_project')->references('id')->on('projects')->onDelete('cascade');;
             $table->string('response')->nullable();
+            $table->string('response_admin')->nullable();
             $table->timestamps();
         });
     }

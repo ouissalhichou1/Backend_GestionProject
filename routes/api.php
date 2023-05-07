@@ -34,6 +34,9 @@ Route::post('/Admin/User/Professor/Delete', [AdminController::class,'DeleteProfe
 Route::post('/Admin/upload-zip-file', [AdminController::class, 'uploadZipFile']);
 Route::get('Admin/User/List',[AdminController::class,'ListUsersWithTheirRole']);
 Route::post('/Admin/Group/Delete/',[AdminController::class,'DeleteGroup']);
+Route::get('/groups/all',[UsersController::class,'GetAllGroupsAndMembers']);
+Route::get('/List/PFE',[AdminController::class,'GetUserGroupDetails']);
+Route::get('/List/PFE',[AdminController::class,'GetUserGroupDetailsAsCSVFile']);
 
 //Professor Routes
 Route::post('/Project/Save/{id}',[ProfessorController::class,'CreateProject']);
@@ -49,7 +52,7 @@ Route::post('/RendezVous/response/{id_user}',[ProfessorController::class,'Respon
 Route::post('/Application/Update/Response/{id_user}',[ApplicationsController::class,'ResponseforApplication']);
 Route::post('/Annonce/create/{id_user}',[ProfessorController::class,'SendAnnonceToGroup']);
 Route::get('/Annonce/get/all/{id_user}',[ProfessorController::class,'GetMyAnnonce']);
-Route::post('/files/Pregression/all/', [StudentController::class, 'GetAllProgressionVideo']);
+Route::post('/files/Pregression/all/', [ProfessorController::class, 'GetAllProgressionVideo']);
 
 
 //Student Routes
@@ -69,8 +72,8 @@ Route::post('/Task/delete/{user_id}',[StudentController::class,'DeleteTask']);
 Route::get('/Task/all/{user_id}',[StudentController::class,'GetMyTasks']);
 Route::post('/files/Upload/{id_user}', [StudentController::class, 'uploadFile']);
 Route::post('/files/Pregression/all/{id_user}', [StudentController::class, 'GetAllProgressionVideo']);
-
-
+Route::get('/group/{id_user}',[StudentController::class,'GetGroupMembers']);
+Route::post('/response/group/response',[StudentController::class,'MyFinalResposeForApplication']);
 
 
 

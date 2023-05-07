@@ -44,20 +44,12 @@ class AuthController extends Controller
         // Add custom claim for user role
         $customClaims = ['role' => $user->roles[0]->RoleName];
         $token = Auth::claims($customClaims)->refresh();
-       /* if($user->roles[0]->RoleName == 'Etu'){
-            $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$user->id,$user->id,$user->id,$user->id,$user->id]);
-            $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
-        }
-        else 
-        $id_group = 'Null';
-        print_r($id_group);*/
         return response()->json([
             'status' => 'success',
             'id_user' =>$user->id,
             'name' => $user->name,
             'surname' => $user->surname,
             'role' => $user->roles[0]->RoleName,
-            //'Group_id' => $user->group->$id_group[0]["id"],
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',
@@ -100,11 +92,11 @@ class AuthController extends Controller
             ]);
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1062 && strpos($e->getMessage(), 'email')) {
-                return response()->json(['message' => 'The email must be unique'], 400);
+                return response()->json(['message' => 'The email must be unique'], 401);
             } else if ($e->errorInfo[1] == 1062 && strpos($e->getMessage(), 'apogee')) {
-                return response()->json(['message' => 'The apogee must be unique'], 400);
+                return response()->json(['message' => 'The apogee must be unique'], 402);
             } else if ($e->errorInfo[1] == 1062 && strpos($e->getMessage(), 'code')) {
-                return response()->json(['message' => 'The code must be unique'], 400);
+                return response()->json(['message' => 'The code must be unique'], 403);
             } else {
                 return response()->json(['message' => 'An error occurred'], 500);
             }
@@ -120,13 +112,17 @@ class AuthController extends Controller
     public function me(){
         return response()->json([
             'status' => 'success',
-            'user' => Auth::user(),
+            'user' => Auth::user(),// select * from users
         ]);
-    }//
+    }
     public function refresh(){
+        $user = Auth::user();
         return response()->json([
             'status' => 'success',
-            'user' => Auth::user(),
+            'id_user' =>$user->id,
+            'name' => $user->name,
+            'surname' => $user->surname,
+            'role' => $user->roles[0]->RoleName,
             'authorisation' => [
                 'token' => Auth::refresh(),
                 'type' => 'bearer',
