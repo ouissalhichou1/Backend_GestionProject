@@ -53,18 +53,18 @@ class AdminController extends Controller
         ]);
     }
     function DeleteEtudiant(Request $request){
-
-        $user = DB::delete('delete from users where apogee = ?',[$request->apogee]);
+        
+        $user = DB::delete('delete from users where apogee = ?',[$request->input('apogee')]);
         return response()->json([
             'status' => 'success',
-            'message' => 'Users deleted successfully',
+            'message' => 'Student deleted successfully',
         ]);
     }
     function DeleteProfessor(Request $request){
-        $user = DB::delete('delete from users where code = ?',[$request->code]);
+        $user = DB::delete('delete from users where code = ?',[$request->input('code')]);
         return response()->json([
             'status' => 'success',
-            'message' => 'Users deleted successfully',
+            'message' => 'Professor deleted successfully',
         ]);
     }
     function uploadZipFile(Request $request)
@@ -82,7 +82,7 @@ class AdminController extends Controller
     }
     function DeleteGroup(Request $request)
     {
-      $admin_apogee = $request->apogee;
+      $admin_apogee = $request->input('apogee');
       $admin_id = DB::select('select id from users where apogee = ?',[$admin_apogee]);
       $admin_id =array_map(function ($value) {
         return (array)$value;
@@ -92,7 +92,7 @@ class AdminController extends Controller
           'status' => 'deleted successfully',
           ]);
     }
-    function ListUsersWithTheirRole(Request $request, $id_student)
+    function ListUsersWithTheirRole(Request $request)
     {
         $users = User::all();
        $data =[] ;
@@ -106,7 +106,7 @@ class AdminController extends Controller
          }
         return response()->json([
          'status' => 'created success',
-          'group' => $group,
+          'users' => $data,
         ]);
     }
    

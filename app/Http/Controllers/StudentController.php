@@ -358,7 +358,6 @@ class StudentController extends Controller
     function ModifyTask(Request $request, $user_id){
         $task_id = $request->task_id;
         $task = Task::where('user_id', $user_id)->find($task_id);
-
         if (!$task) {
         return response()->json([
             'status' => 'error',
@@ -378,13 +377,13 @@ class StudentController extends Controller
     }
     function GetMyTasks(Request $request, $user_id){
        $tasks = Task::where('user_id', $user_id)->get();
-
         return response()->json([
         'status' => 'success',
         'tasks' => $tasks,
         ]);
     }
     function deleteTask(Request $request, $user_id) {
+        $task_id = $request->task_id;
         $task = Task::where('user_id', $user_id)->find($task_id);
     
         if (!$task) {
@@ -401,7 +400,7 @@ class StudentController extends Controller
             'message' => 'Task deleted successfully.',
         ]);
     }
-    function uploadFile(Request $request){
+    function uploadFile(Request $request , $id_user){
         // Validate the uploaded file
         $request->validate([
             'file' => 'required|file',
@@ -413,9 +412,9 @@ class StudentController extends Controller
         // Create a new entry in the files table
         $file = new File;
         $file->path = $path;
-        $file->type = $request->inpute('type');
+        $file->type = $request->input('type');
         $file->name = $fileName;
-        $file->user_id = auth()->user()->id;
+        $file->user_id =$id_user;
         $file->save();
 
         return response()->json([
@@ -448,12 +447,6 @@ class StudentController extends Controller
     
     
 
-    
-
-
-    
-
-    //the table invitations should i have use it rethink of joinging group prossess
 
 
 }

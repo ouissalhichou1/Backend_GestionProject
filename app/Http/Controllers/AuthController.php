@@ -44,15 +44,20 @@ class AuthController extends Controller
         // Add custom claim for user role
         $customClaims = ['role' => $user->roles[0]->RoleName];
         $token = Auth::claims($customClaims)->refresh();
-        $id_group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_student,$id_student,$id_student,$id_student,$id_student]);
-        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
+       /* if($user->roles[0]->RoleName == 'Etu'){
+            $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$user->id,$user->id,$user->id,$user->id,$user->id]);
+            $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
+        }
+        else 
+        $id_group = 'Null';
+        print_r($id_group);*/
         return response()->json([
             'status' => 'success',
             'id_user' =>$user->id,
             'name' => $user->name,
             'surname' => $user->surname,
             'role' => $user->roles[0]->RoleName,
-            'Group_id' => $user->group->$id_group[0]["id"],
+            //'Group_id' => $user->group->$id_group[0]["id"],
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',
@@ -117,7 +122,7 @@ class AuthController extends Controller
             'status' => 'success',
             'user' => Auth::user(),
         ]);
-    }
+    }//
     public function refresh(){
         return response()->json([
             'status' => 'success',
@@ -127,6 +132,6 @@ class AuthController extends Controller
                 'type' => 'bearer',
             ]
         ]);
-    }
+    }//
 
 }

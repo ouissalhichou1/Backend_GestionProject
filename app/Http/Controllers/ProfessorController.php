@@ -157,7 +157,8 @@ class ProfessorController extends Controller
                      'member5.surname as member5_surname',
                      'member5.email as member5_email')
             ->where('projects.id_user', $id_user)
-            ->where('applications.response', 'accepted')
+            ->where('applications.response_prof', 'accepted')
+            //->where('applications.response_etu', 'accepted')
             ->get();
         return response()->json([
             'status' => '200',
@@ -228,8 +229,8 @@ class ProfessorController extends Controller
                      ->where('response', 'accepted')
                      ->value('id_group');
         $annonce = new Annonce;
-        $annonce->title = $request->input('title');;
-        $annonce->message = $request->input('message');;
+        $annonce->title = $request->input('title');
+        $annonce->message = $request->input('message');
         $annonce->id_group = $id_group;
         $annonce->id_user = $id_user;
         $annonce->save();
@@ -253,19 +254,16 @@ class ProfessorController extends Controller
     function GetAllProgressionVideo(Request $request) {
         // Retrieve the user's filliere
         $userFilliere = $request->input('filiere');
-    
         // Retrieve the video files that match the specified conditions
         $files = File::where('type', 'progression')
                      ->whereHas('user', function ($query) use ($userFilliere) {
                          $query->where('filliere', $userFilliere);
                      })
                      ->get();
-    
         // Extract the video URLs from the files
         $videoUrls = $files->map(function ($file) {
             return $file->path;
         });
-    
         return response()->json([
             'status' => 'success',
             'video_urls' => $videoUrls,

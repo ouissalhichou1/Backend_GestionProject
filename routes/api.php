@@ -18,13 +18,13 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::get('/Project/List', [UsersController::class, 'GetAllProjects']);
 Route::get('/download-zip-file/', [UsersController::class, 'downloadZipFile']);
 Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');
+Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');//
 
 //Auth 
 Route::post('logout', [AuthController::class, 'logout']);
 Route::post('refresh', [AuthController::class, 'refresh']);
 Route::get('me', [AuthController::class, 'me']);
-Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');//
 
 //Admin Routes
 Route::post('/Admin/User/Student/Save', [AdminController::class,'SaveUser']);
@@ -67,7 +67,7 @@ Route::post('/Task/Crate/{id_user}',[StudentController::class,'CreateTask']);
 Route::post('/Task/Modify/{user_id}',[StudentController::class,'ModifyTask']);
 Route::post('/Task/delete/{user_id}',[StudentController::class,'DeleteTask']);
 Route::get('/Task/all/{user_id}',[StudentController::class,'GetMyTasks']);
-Route::post('/files/Upload', [StudentController::class, 'uploadFile']);
+Route::post('/files/Upload/{id_user}', [StudentController::class, 'uploadFile']);
 Route::post('/files/Pregression/all/{id_user}', [StudentController::class, 'GetAllProgressionVideo']);
 
 
