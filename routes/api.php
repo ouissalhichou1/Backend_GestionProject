@@ -58,9 +58,10 @@ Route::post('/files/Pregression/all/', [ProfessorController::class, 'GetAllProgr
 
 //Student Routes
 Route::post('/Group/Create/{id_user}',[StudentController::class,'CreateGroup']);
-Route::get('Sujet/PFE/All/{id_user}', [StudentController::class, 'GetProjectsToApplyTo']);
+Route::get('/Sujet/PFE/All/{id_user}', [StudentController::class, 'GetProjectsToApplyTo']);
 Route::post('/Rendezvous/{id_user}',[StudentController::class,'CreateMeetingWithMySuperviser']);
 Route::post('/Join/Group/{id_user}',[StudentController::class,'JoinGroup']);
+Route::get('/Demende/Rejoindre/{id_user}',[StudentController::class,'GetInvitations']);
 Route::post('/Response/Demandes/{id_user}',[StudentController::class,'RespondToInvitation']);
 Route::get('/User/Quit/{id_student}',[StudentController::class,'QuitGroup']);
 Route::post('/Project/Application/{id_user}',[StudentController::class,'ApplyToProject']);

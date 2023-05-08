@@ -105,7 +105,7 @@ class AdminController extends Controller
       $group = DB::delete('delete from groups where id_group_admin = ?', [$admin_id[0]["id"]]);
          return response()->json([
           'status' => 'deleted successfully',
-          ]);
+        ]);
     }
     function ListUsersWithTheirRole(Request $request)
     {

@@ -144,6 +144,7 @@ class StudentController extends Controller
             ->first();
     
         if ($existing_group) {
+
             $existingInvitation = DB::table('invitations')
                 ->where('id_group', $id_group)
                 ->where('id_etudiant', $id_user)
@@ -170,24 +171,22 @@ class StudentController extends Controller
                     'message' => 'Sorry, you have already tried to join this group.',
                 ]);
             }
+            DB::table('invitations')->insert([
+                'id_group' => $id_group,
+                'id_etudiant' => $id_user,
+                'response' => null,
+            ]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Invitation sent. Waiting for acceptance.',
+            ]);
+
         } else {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sorry, the group does not exist.',
             ]);
         }
-    
-        // Store the user in the invitations table
-        DB::table('invitations')->insert([
-            'id_group' => $id_group,
-            'id_etudiant' => $id_user,
-            'response' => null,
-        ]);
-    
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Invitation sent. Waiting for acceptance.',
-        ]);
     }
     function RespondToInvitation(Request $request, $id_user){
         $id_invitation = $request->input('id_invitation');
@@ -278,6 +277,27 @@ class StudentController extends Controller
             ]);
         }
     }
+    function GetInvitations(Request $request, $id_user){
+
+        $id_group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
+        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
+        $id_group = $id_group[0]["id"];
+        $invs = DB::select('select * from invitations where id_group = ?', [$id_group]);
+        $data = [];
+        foreach ($invs as $inv) {
+            $result = DB::select('select name, surname , filiere from users where id = ?', [$inv->id_etudiant]);
+            $result = array_map(function ($value) {
+                return (array) $value;
+            }, $result);
+            $inv->name = $result[0]["name"] . " " . $result[0]["surname"];
+            $inv->filiere = $result[0]["filiere"];
+            $data[] = $inv;
+        }
+        return response()->json([
+            'status' => 'success',
+            'project' => $data,
+        ]);
+    }
     function CreateMeetingWithMySuperviser(Request $request, $id_user){
 
         $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
@@ -323,47 +343,65 @@ class StudentController extends Controller
             ]);
         }
     }   
-    function GetProjectsToApplyTo(Request $request , $id_user){
-        $filiere= DB::select('select filiere from users where id =?',[$id_user]);
-        $filiere = array_map(function ($value) {return (array)$value;}, $filiere);
-        $filiere=$filiere[0]["filiere"];
-        $projects = Project::all();
+    function GetProjectsToApplyTo(Request $request, $id_user) {
+
+        $filiere = DB::select('select filiere from users where id = ?', [$id_user]);
+        $filiere = array_map(function ($value) {
+            return (array) $value;
+        }, $filiere);
+        $filiere = $filiere[0]["filiere"];
+    
+        $projects = DB::select('select * from projects where filiere = ?', [$filiere]);
+        $projects = array_map(function ($value) {
+            return (object) $value;
+        }, $projects);
+    
         $data = [];
         foreach ($projects as $project) {
-           $result = DB::select('select name ,surname , email from users where id = ? and filiere =?', [ $project->id_user, $filiere]);
-           $result = array_map(function ($value) {return (array)$value;}, $result);
-           $project->owner_name = $result[0]["name"]." ".$result[0]["surname"];
-           $project->owner_email = $result[0]["email"];
-           $data[] = $project;
-        }
-        return response()->json([
-           'status' => 'success',
-           'data' => $data,
-           ]);
-    }
-    function ApplyToProject(Request $request, $id_user) {
-        $id_group = DB::select('select id from groups where id_group_admin = ?', [$id_user]);
-        $id_group = array_map(function ($value) {
-            return (array) $value;
-        }, $id_group);
-        $group_data = array_slice($id_group[0], 1, null, true);
-        $nbrOfMembers = count($group_data);
-        $nbrPersonne = DB::select('select NbrPersonnes from projects where id = ?', [$request->id_project]);
+            $result = DB::select('select name, surname, email from users where id = ?', [$project->id_user]);
+            $result = array_map(function ($value) {
+                return (array) $value;
+            }, $result);
     
-        if ($nbrOfMembers == $nbrPersonne[0]->NbrPersonnes) {
-            $application = new Application();
-            $application->id_project = $request->id_project;
-            $application->id_group = $id_group[0]["id"];
-            $application->save();
-            
-            return response()->json([
+            $project->owner_name = $result[0]["name"] . " " . $result[0]["surname"];
+            $project->owner_email = $result[0]["email"];
+            $data[] = $project;
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
+    }        
+    function ApplyToProject(Request $request, $id_user){
+        
+        $id_group = DB::select('select id from groups where id_group_admin = ?', [$id_user]);
+        $id_group = array_map(function ($value) {return (array) $value;}, $id_group);
+
+        if($id_group){
+            $group_data = array_slice($id_group[0], 1, null, true);
+            $nbrOfMembers = count($group_data);
+            $nbrPersonne = DB::select('select NbrPersonnes from projects where id = ?', [$request->id_project]);
+            if ($nbrOfMembers == $nbrPersonne[0]->NbrPersonnes) {
+                 $application = new Application();
+                 $application->id_project = $request->id_project;
+                 $application->id_group = $id_group[0]["id"];
+                 $application->save();
+               return response()->json([
                 'status' => 'success',
                 'project' => $application,
-            ]);
-        } else {
+                ]);
+            }
+            else {
+    return response()->json([
+        'status' => 'error',
+        'message' => 'Sorry, you cannot apply to this project.',
+    ]);
+}
+        }else{
             return response()->json([
                 'status' => 'error',
-                'message' => 'Sorry, you cannot apply to this project.',
+                'message' => 'Sorry, you arent Admin.',
             ]);
         }
     }
