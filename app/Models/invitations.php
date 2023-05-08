@@ -9,6 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class invitations extends Pivot
 {
     use HasFactory;
-    protected $fillable = ['id','id_group', 'id_etudiant','response'];
+    protected $fillable = ['id','id_group', 'id_etudiant','response',];
     protected $table = 'applications';
 }

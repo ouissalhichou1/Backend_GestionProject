@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Application extends Pivot
 {
     use HasFactory;
-    protected $fillable = ['id','id_group', 'id_project','response'];
+    protected $fillable = ['id','id_group', 'id_project','response','response_admin'];
     protected $table = 'applications';
     
     public function user()

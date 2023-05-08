@@ -127,33 +127,25 @@ class AdminController extends Controller
     function GetAllGroupsAndMembers()
     {
         $groups = DB::table('groups')->get();
-    
         $data = [];
-    
         foreach ($groups as $group) {
             $groupData = [
                 'group_id' => $group->id,
             ];
-    
             $groupColumns = ['id_group_admin', 'id_user2', 'id_user3', 'id_user4', 'id_user5'];
             $memberCount = 1;
-    
             foreach ($groupColumns as $column) {
                 $memberId = $group->{$column};
-    
                 if ($memberId !== null) {
                     $memberApogee = DB::table('users')->where('id', $memberId)->value('apogee');
-    
                     if ($memberApogee) {
                         $groupData["member_{$memberCount}"] = $memberApogee;
                         $memberCount++;
                     }
                 }
             }
-    
             $data[] = $groupData;
         }
-    
         return response()->json([
             'status' => 'success',
             'group_members' => $data,
@@ -203,7 +195,24 @@ class AdminController extends Controller
     
         return response()->json($response);
     }
-    
+    function GetAllProgressionVideo(Request $request) {
+        // Retrieve the user's filliere
+        $userFilliere = $request->input('filiere');
+        // Retrieve the video files that match the specified conditions
+        $files = File::where('type', 'progression')
+                     ->whereHas('user', function ($query) use ($userFilliere) {
+                         $query->where('filliere', $userFilliere);
+                     })
+                     ->get();
+        // Extract the video URLs from the files
+        $videoUrls = $files->map(function ($file) {
+            return $file->path;
+        });
+        return response()->json([
+            'status' => 'success',
+            'video_urls' => $videoUrls,
+        ]);
+    }
     
 
 }

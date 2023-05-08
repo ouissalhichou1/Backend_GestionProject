@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\File;
 use App\Models\Task;
+use App\Models\Group;
+use App\Models\Project;
+use App\Models\RendezVous;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -12,104 +16,189 @@ class StudentController extends Controller
     {
         $this->middleware('check.role:Etu');
     }
-    function CreateGroup(Request $request,$id_user){
-        $id_user2 = DB::table('users')->where('apogee', $request->input('user2'))->first();
-        $id_user3 = DB::table('users')->where('apogee', $request->input('user3'))->first();
-        $id_user4 = DB::table('users')->where('apogee', $request->input('user4'))->first();
-        $id_user5 = DB::table('users')->where('apogee', $request->input('user5'))->first();
+     
+    function CreateGroup(Request $request, $id_user) {
+        $apogee2 = $request->input('user2');
+        $apogee3 = $request->input('user3');
+        $apogee4 = $request->input('user4');
+        $apogee5 = $request->input('user5');
+    
         $usersWithGroups = [];
-        if ($id_user2) {
-             $usersWithGroups[] = [
-               'name' => $id_user2->name,
-              'surname' => $id_user2->surname,
-            ];
+        if ($id_user) {
+            $existingGroup = DB::table('groups')
+            ->where('id_user2',$id_user)
+            ->orWhere('id_user3', $id_user)
+            ->orWhere('id_user4', $id_user)
+            ->orWhere('id_user5', $id_user)
+            ->first();
+            if ($existingGroup) {
+                $usersWithGroups[] = $id_user;
+            }
         }
-        if ($id_user3) {
-        $usersWithGroups[] = [
-           'name' => $id_user3->name,
-           'surname' => $id_user3->surname,
-        ];
-        }
-        if ($id_user4) {
-            $usersWithGroups[] = [
-             'name' => $id_user4->name,
-            'surname' => $id_user4->surname,
-             ];
-        }
-        if ($id_user5) {
-          $usersWithGroups[] = [
-           'name' => $id_user5->name,
-            'surname' => $id_user5->surname,
-          ];
-        }
+         // Search for user with apogee $apogee2
+        if (!empty($apogee2)) {
+             $user2 = DB::table('users')->where('apogee', $apogee2)->first();
+             if ($user2) {
+        $existingGroup = DB::table('groups')
+            ->where('id_user2', $user2->id)
+            ->orWhere('id_user3', $user2->id)
+            ->orWhere('id_user4', $user2->id)
+            ->orWhere('id_user5', $user2->id)
+            ->first();
 
+        if ($existingGroup) {
+            $usersWithGroups[] = $apogee2;
+        }
+        }
+      } else {
+        $user2 = null;
+      }
+
+     // Search for user with apogee $apogee3
+     if (!empty($apogee3)) {
+      $user3 = DB::table('users')->where('apogee', $apogee3)->first();
+      if ($user3) {
+        $existingGroup = DB::table('groups')
+            ->where('id_user2', $user3->id)
+            ->orWhere('id_user3', $user3->id)
+            ->orWhere('id_user4', $user3->id)
+            ->orWhere('id_user5', $user3->id)
+            ->first();
+
+        if ($existingGroup) {
+            $usersWithGroups[] = $apogee3;
+        }
+      }
+     } else {
+       $user3 = null;
+      }
+
+      // Search for user with apogee $apogee4
+     if (!empty($apogee4)) {
+      $user4 = DB::table('users')->where('apogee', $apogee4)->first();
+      if ($user4) {
+        $existingGroup = DB::table('groups')
+            ->where('id_user2', $user4->id)
+            ->orWhere('id_user3', $user4->id)
+            ->orWhere('id_user4', $user4->id)
+            ->orWhere('id_user5', $user4->id)
+            ->first();
+
+        if ($existingGroup) {
+            $usersWithGroups[] = $apogee4;
+        }
+       }
+        } else {
+      $user4 = null;
+      }
+
+      // Search for user with apogee $apogee5
+     if (!empty($apogee5)) {
+      $user5 = DB::table('users')->where('apogee', $apogee5)->first();
+      if ($user5) {
+        $existingGroup = DB::table('groups')
+            ->where('id_user2', $user5->id)
+            ->orWhere('id_user3', $user5->id)
+            ->orWhere('id_user4', $user5->id)
+            ->orWhere('id_user5', $user5->id)
+            ->first();
+
+        if ($existingGroup) {
+            $usersWithGroups[] = $apogee5;
+        }
+       }
+      } else {
+      $user5 = null;
+      }
+
+    
         if (!empty($usersWithGroups)) {
-              return response()->json([
-              'status' => 'error',
-             'message' => 'Sorry, the following users are already assigned to a group:',
-             'users' => $usersWithGroups,
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Sorry, the following users are already assigned to a group:',
+                'users' => $usersWithGroups,
             ]);
         }
+    
+        // Create the new group and return success response
+        // ...
+    
         $group = new Group();
         $group->id_group_admin = $id_user;
-        $group->id_user2 = $id_user2;
-        $group->id_user3 = $id_user3;
-        $group->id_user4 = $id_user4;
-        $group->id_user5 = $id_user5;
-         $group->save();
-
-         return response()->json([
-         'status' => 'created success',
-         'group' => $group,
-        ]); 
+        $group->id_user2 = $user2 ? $user2->id : null;
+        $group->id_user3 = $user3 ? $user3->id : null;
+        $group->id_user4 = $user4 ? $user4->id : null;
+        $group->id_user5 = $user5 ? $user5->id : null;
+        $group->save();
+    
+        return response()->json([
+            'status' => 'created',
+            'group' => $group,
+        ]);
     }
     function JoinGroup(Request $request, $id_user){
         $id_group = $request->input('id_group');
-       // Check if the user is already in the invitations table
-       $existingInvitation = DB::table('invitations')
-        ->where('id_group', $id_group)
-        ->where('id_etudiant', $id_user)
-        ->first();
-       if ($existingInvitation) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Sorry, you have already been invited to this group.',
-        ]);
-        }
-       // Store the user in the invitations table
-       DB::table('invitations')->insert([
-        'id_group' => $id_group,
-        'id_etudiant' => $id_user,
-        'response' => null,
-         ]);
-         return response()->json([
-          'status' => 'success',
-          'message' => 'Invitation sent. Waiting for acceptance.',
-        ]);
-    }
-    function RespondToInvitation(Request $request, $id_user) {
-        $id_invitation = $request->input('id_invitation');
-        $response = $request->input('response');
     
-        // Update the invitation response
-        DB::table('invitations')
-            ->where('id', $id_invitation)
-            ->update(['response' => $response]);
+        $existing_group = DB::table('groups')
+            ->where('id', $id_group)
+            ->first();
     
-        if ($response == 'accepted') {
-            // Retrieve the invitation and associated group
-            $invitation = DB::table('invitations')
-                ->where('id', $id_invitation)
+        if ($existing_group) {
+            $existingInvitation = DB::table('invitations')
+                ->where('id_group', $id_group)
+                ->where('id_etudiant', $id_user)
                 ->first();
     
-            if (!$invitation) {
+            $existingGroup = DB::table('groups')
+                ->where('id_group_admin', $id_user)
+                ->orWhere('id_user2', $id_user)
+                ->orWhere('id_user3', $id_user)
+                ->orWhere('id_user4', $id_user)
+                ->orWhere('id_user5', $id_user)
+                ->first();
+    
+            if ($existingGroup) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Invitation not found.',
+                    'message' => 'Sorry, you are already a member of another group.',
                 ]);
             }
     
-            $id_group = $invitation->id_group;
+            if ($existingInvitation) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sorry, you have already tried to join this group.',
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Sorry, the group does not exist.',
+            ]);
+        }
+    
+        // Store the user in the invitations table
+        DB::table('invitations')->insert([
+            'id_group' => $id_group,
+            'id_etudiant' => $id_user,
+            'response' => null,
+        ]);
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invitation sent. Waiting for acceptance.',
+        ]);
+    }
+    function RespondToInvitation(Request $request, $id_user){
+        $id_invitation = $request->input('id_invitation');
+        $response = $request->input('response');
+    
+        $invitation_exists = DB::table('invitations')
+            ->where('id', $id_invitation)
+            ->first();
+    
+        if ($invitation_exists) {
+            $id_group = $invitation_exists->id_group;
     
             // Check if the user is already a member of the group
             $isMember = DB::table('groups')
@@ -122,96 +211,126 @@ class StudentController extends Controller
                 ->exists();
     
             if ($isMember) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'You are already a member of this group.',
-                ]);
-            }
+                $invitation_response = DB::table('invitations')
+                    ->where('id', $id_invitation)
+                    ->update(['response' => $response]);
     
-            // Find the first available column and add the user to it
-            $availableColumns = ['id_user2', 'id_user3', 'id_user4', 'id_user5'];
-            $columnToUpdate = null;
+                if ($invitation_response) {
+                    if ($response === 'accepted') {
+                        // Find the first available column and add the user to it
+                        $availableColumns = ['id_user2', 'id_user3', 'id_user4', 'id_user5'];
+                        $columnToUpdate = null;
     
-            foreach ($availableColumns as $column) {
-                $value = DB::table('groups')
-                    ->where('id', $id_group)
-                    ->value($column);
+                        foreach ($availableColumns as $column) {
+                            $value = DB::table('groups')
+                                ->where('id', $id_group)
+                                ->value($column);
     
-                if (!$value) {
-                    $columnToUpdate = $column;
-                    break;
+                            if (!$value) {
+                                $columnToUpdate = $column;
+                                break;
+                            }
+                        }
+    
+                        if (!$columnToUpdate) {
+                            return response()->json([
+                                'status' => 'error',
+                                'message' => 'No available slots in the group.',
+                            ]);
+                        }
+    
+                        // Add the user to the group
+                        DB::table('groups')
+                            ->where('id', $id_group)
+                            ->update([$columnToUpdate => $id_user]);
+    
+                        // Delete the invitation
+                        DB::table('invitations')
+                            ->where('id', $id_invitation)
+                            ->delete();
+    
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => 'You user joined the group successfully.',
+                        ]);
+                    } else {
+                        // Update the invitation response to "refused"
+                        DB::table('invitations')
+                            ->where('id', $id_invitation)
+                            ->update(['response' => 'refused']);
+    
+                        return response()->json([
+                            'status' => 'success',
+                            'message' => 'Invitation declined.',
+                        ]);
+                    }
                 }
-            }
-    
-            if (!$columnToUpdate) {
+            } else {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'No available slots in the group.',
+                    'message' => 'You are not a member of the group.',
                 ]);
             }
-    
-            // Add the user to the group
-            DB::table('groups')
-                ->where('id', $id_group)
-                ->update([$columnToUpdate => $id_user]);
-    
-            // Delete the invitation
-            DB::table('invitations')
-                ->where('id', $id_invitation)
-                ->delete();
-    
+        } else {
             return response()->json([
-                'status' => 'success',
-                'message' => 'You have joined the group successfully.',
+                'status' => 'error',
+                'message' => 'Invitation not found.',
             ]);
-        } elseif ($response == 'refused') {
-            // Update the invitation response to "refused"
-            DB::table('invitations')
-                ->where('id', $id_invitation)
-                ->update(['response' => 'refused']);
+        }
+    }
+    function CreateMeetingWithMySuperviser(Request $request, $id_user){
+
+        $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
+        $id_group = array_map(function ($value) {
+            return (array)$value;
+        }, $id_group);
+        $id_group = $id_group[0]["id"];
+        $id_project = DB::select('select id_project from applications where id_group = ?', [$id_group]);
+        $id_project = array_map(function ($value) {
+            return (array)$value;
+        }, $id_project);
+        $id_project = $id_project[0]["id_project"];
+        $to = DB::select('select id_user from projects where id = ?', [$id_project]);
+        $to = array_map(function ($value) {
+            return (array)$value;
+        }, $to);
+        $to = $to[0]["id_user"];
+        $response = 'accepted';
+        $applications_exists = DB::table('applications')
+            ->where('id_project', $id_project)
+            ->where('id_group', $id_group)
+            ->where('response', $response)
+            ->where('response_admin', $response)
+            ->first();
+        if ($applications_exists) {
+            $rendez_vous = new RendezVous;
+            $rendez_vous->creator = $id_user;
+            $rendez_vous->date = $request->input('date');
+            $rendez_vous->heure = $request->input('heure');
+            $rendez_vous->objet = $request->input('objet');
+            $rendez_vous->to = $to;
+            $rendez_vous->save();
     
             return response()->json([
-                'status' => 'success',
-                'message' => 'Invitation declined.',
+                'status' => '200',
+                'message' => 'Meeting created successfully',
+                'project' => $rendez_vous,
             ]);
         } else {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid response.',
+                'message' => 'You haven\'t decided your PFE yet',
             ]);
         }
-    }
-    function CreateMeetingWithMySuperviser(Request $request , $id_user){
-
-        $rendez_vous = new RendezVous;
-        $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
-        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
-        $id_group = $id_group[0]["id"];
-        $id_project = DB::select('select id_project from applications where id_group = ?',[$id_group]);
-        $id_project = array_map(function ($value) {return (array)$value;}, $id_project);
-        $id_project = $id_project[0]["id_project"];
-        $to = DB::select('select id_user from projects where id = ?', [$id_project]);
-        $to = array_map(function ($value) {return (array)$value;}, $to);
-        $to = $to[0]["id_user"];
-        $rendez_vous->creator = $id_user;
-        $rendez_vous->date =$request->input('date');
-        $rendez_vous->heure =$request->input('heure');
-        $rendez_vous->objet = $request->input('objet');
-        $rendez_vous->to =$to;
-        $rendez_vous->save();
-        return response()->json([
-            'status' => '200',
-            'message'=>'meet created successfully',
-            'project' => $rendez_vous,
-        ]);
-
-    }
+    }   
     function GetProjectsToApplyTo(Request $request , $id_user){
-        $user_filiere= DB::select('select filiere from users where id =?',[$id_user]);
+        $filiere= DB::select('select filiere from users where id =?',[$id_user]);
+        $filiere = array_map(function ($value) {return (array)$value;}, $filiere);
+        $filiere=$filiere[0]["filiere"];
         $projects = Project::all();
         $data = [];
         foreach ($projects as $project) {
-           $result = DB::select('select name ,surname , email from users where id = ? and filiere =?', [ $project->id_user,$user_filiere]);
+           $result = DB::select('select name ,surname , email from users where id = ? and filiere =?', [ $project->id_user, $filiere]);
            $result = array_map(function ($value) {return (array)$value;}, $result);
            $project->owner_name = $result[0]["name"]." ".$result[0]["surname"];
            $project->owner_email = $result[0]["email"];

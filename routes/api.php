@@ -37,6 +37,7 @@ Route::post('/Admin/Group/Delete/',[AdminController::class,'DeleteGroup']);
 Route::get('/groups/all',[UsersController::class,'GetAllGroupsAndMembers']);
 Route::get('/List/PFE',[AdminController::class,'GetUserGroupDetails']);
 Route::get('/List/PFE',[AdminController::class,'GetUserGroupDetailsAsCSVFile']);
+Route::post('/Pregression/all/', [ProfessorController::class, 'GetAllProgressionVideo']);
 
 //Professor Routes
 Route::post('/Project/Save/{id}',[ProfessorController::class,'CreateProject']);
@@ -57,7 +58,7 @@ Route::post('/files/Pregression/all/', [ProfessorController::class, 'GetAllProgr
 
 //Student Routes
 Route::post('/Group/Create/{id_user}',[StudentController::class,'CreateGroup']);
-Route::get('/Project/All', [StudentController::class, 'GetProjectsToApplyTo']);
+Route::get('Sujet/PFE/All/{id_user}', [StudentController::class, 'GetProjectsToApplyTo']);
 Route::post('/Rendezvous/{id_user}',[StudentController::class,'CreateMeetingWithMySuperviser']);
 Route::post('/Join/Group/{id_user}',[StudentController::class,'JoinGroup']);
 Route::post('/Response/Demandes/{id_user}',[StudentController::class,'RespondToInvitation']);

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('id_group')->unsigned();
             $table->foreign('id_group')->references('id')->on('groups')->onDelete('cascade');;
             $table->integer('id_etudiant')->unsigned();
-            $table->foreign('id_etudiant')->references('id')->on('projects')->onDelete('cascade');;
+            $table->foreign('id_etudiant')->references('id')->on('users')->onDelete('cascade');;
             $table->string('response')->nullable();
         });
     }

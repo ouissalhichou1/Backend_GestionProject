@@ -58,6 +58,7 @@ class AuthController extends Controller
     }
     public function register(Request $request){
 
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'surname' =>'required|string|max:255',
@@ -102,7 +103,7 @@ class AuthController extends Controller
             }
         }
     }
-    public function logout(){
+    public function logout(Request $request){
         Auth::logout();
         return response()->json([
             'status' => 'success',
