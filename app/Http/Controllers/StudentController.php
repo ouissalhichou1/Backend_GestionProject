@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\Group;
 use App\Models\Project;
 use App\Models\RendezVous;
+use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -374,37 +375,55 @@ class StudentController extends Controller
         ]);
     }        
     function ApplyToProject(Request $request, $id_user){
-        
-        $id_group = DB::select('select id from groups where id_group_admin = ?', [$id_user]);
-        $id_group = array_map(function ($value) {return (array) $value;}, $id_group);
-
-        if($id_group){
-            $group_data = array_slice($id_group[0], 1, null, true);
-            $nbrOfMembers = count($group_data);
-            $nbrPersonne = DB::select('select NbrPersonnes from projects where id = ?', [$request->id_project]);
-            if ($nbrOfMembers == $nbrPersonne[0]->NbrPersonnes) {
-                 $application = new Application();
-                 $application->id_project = $request->id_project;
-                 $application->id_group = $id_group[0]["id"];
-                 $application->save();
-               return response()->json([
-                'status' => 'success',
-                'project' => $application,
+        $project = $request->id_project;
+        $id_group = DB::select('select * from groups where id_group_admin = ?', [$id_user]);
+        $id_group = array_map(function ($value) {
+            return (array) $value;
+        }, $id_group);
+    
+        if ($id_group) {
+            $applications_exists = DB::select('select * from applications where id_project = ? and id_group = ?', [$project, $id_group[0]['id']]);
+    
+            if ($applications_exists) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sorry, you have already applied to this project.',
                 ]);
+            } else {
+                $group_data = array_slice($id_group[0], 1, null, true);
+                $nonEmptyValues = array_filter($group_data);
+                $nbrOfMembers = count($nonEmptyValues);
+                $nbrOfMembers--;
+    
+                $nbrPersonne = DB::select('select NbrPersonnes from projects where id = ?', [$project]);
+                $nbrPersonne = array_map(function ($value) {
+                    return (array) $value;
+                }, $nbrPersonne);
+    
+                if ($nbrOfMembers == $nbrPersonne[0]['NbrPersonnes']) {
+                    $application = new Application();
+                    $application->id_project = $request->id_project;
+                    $application->id_group = $id_group[0]['id'];
+                    $application->save();
+    
+                    return response()->json([
+                        'status' => 'success',
+                        'project' => $application,
+                    ]);
+                } else {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Sorry, you cannot apply to this project because of the number of members.',
+                    ]);
+                }
             }
-            else {
-    return response()->json([
-        'status' => 'error',
-        'message' => 'Sorry, you cannot apply to this project.',
-    ]);
-}
-        }else{
+        } else {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Sorry, you arent Admin.',
+                'message' => 'Sorry, you are not authorized to apply to projects because you are not an admin.',
             ]);
         }
-    }
+    } 
     function GetMyApplications(Request $request, $id_user){
         $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
         $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
