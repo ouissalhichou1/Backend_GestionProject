@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\File;
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Group;
 use App\Models\Project;
 use App\Models\RendezVous;
@@ -344,6 +345,20 @@ class StudentController extends Controller
             ]);
         }
     }   
+    function GetMeetingToAttend(Request $request, $id_user){
+        $id_group = DB::select('select id from groups where id_group_admin = ? or id_user2 = ? or id_user3 = ? or id_user4 = ? or id_user5 = ?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
+        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
+        $id_group  = $id_group[0]["id"];
+        $rendez_vous = DB::table('rendez_vous')
+        ->select('*')
+        ->where('to', $id_user)
+        ->get();
+        return response()->json([
+            'status' => '200',
+            'message' => 'rendez_vous fetched',
+            'sujets' => $rendez_vous,
+        ]);
+    }
     function GetProjectsToApplyTo(Request $request, $id_user) {
 
         $filiere = DB::select('select filiere from users where id = ?', [$id_user]);
@@ -424,38 +439,122 @@ class StudentController extends Controller
             ]);
         }
     } 
-    function GetMyApplications(Request $request, $id_user){
-        $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
-        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
-        $id_group = $id_group[0]["id"];
-        $group = Group::find($id_group);
-       if ($group) {
-            $applications = Application::with('project')
-            ->where('id_group', $group->id)
-            ->get();
-            $result = [];
-            foreach ($applications as $application) {
-            $project = $application->project;
-            $result[] = [
-                'application_id' => $application->id,
-                'application_response' => $application->response,
-                'group_id' => $application->id_group,
-                'project_sujet' => $project->sujet,
-                'project_filiere' => $project->filiere,
-                'project_user_id' => $project->id_user,
-                'project_creator_name' => $project->user->name,
-                'project_creator_surname' => $project->user->surname,
-
-            ];
+    function GetMyApplications(Request $request, $id_user) {
+        $id_group = DB::select('select id from groups where id_group_admin = ? or id_user2 = ? or id_user3 = ? or id_user4 = ? or id_user5 = ?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
+    
+        if ($id_group) {
+            $id_group = $id_group[0]->id;
+    
+            $applications = DB::table('applications')
+                ->where('id_group', $id_group)
+                ->get();
+    
+            if ($applications->isNotEmpty()) {
+                $data = [];
+    
+                foreach ($applications as $application) {
+                    $project = Project::with('user')->find($application->id_project);
+    
+                    if ($project) {
+                        $data[] = [
+                            'id_application' => $application->id,
+                            'response_professor' => $application->response,
+                            'response_admin' => $application->response_admin,
+                            'id_group' => $id_group,
+                            'owner_name' => $project->user->name . ' ' . $project->user->surname,
+                            'owner_email' => $project->user->email,
+                            'sujet_pfe' => $project->sujet,
+                        ];
+                    }
+                }
+    
+                return response()->json([
+                    'status' => '200',
+                    'message' => 'applications fetched',
+                    'applications' => $data,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No applications found.',
+                ]);
             }
-           return response()->json(['applications' => $result]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Group not found.',
+            ]);
         }
-        return response()->json(['message' => 'Group not found.'], 404);
     }
-    function MyFinalResposeForApplication(Request $request, $id_user) {
+    function MyFinalResposeForApplication(Request $request, $id_user){
         $application_id = $request->application_id;
-        $response = $request->response;
+        $response = $request->input('response_admin');
+    
         // Check if the user is the group admin
+        $isGroupAdmin = DB::table('groups')
+            ->where('id_group_admin', $id_user)
+            ->exists();
+    
+        if (!$isGroupAdmin) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to update the application response.',
+            ]);
+        }
+    
+        $response_prof = DB::table('applications')
+            ->where('id', $application_id)
+            ->value('response');
+        $id_group = DB::table('applications')
+            ->where('id', $application_id)
+            ->value('id_group');
+    
+        if ($response_prof == 'accepted') {
+            // Update the application response
+            DB::table('applications')
+                ->where('id', $application_id)
+                ->update(['response_admin' => $response]);
+    
+            if ($response == 'accepted') {
+                $groupApplications = Application::where('id_group', $id_group)
+                    ->where(function ($query) {
+                        $query->where('response_admin', '!=', 'accepted')
+                            ->orWhereNull('response_admin');
+                    })
+                    ->get();
+    
+                foreach ($groupApplications as $application) {
+                    $application->delete();
+                }
+    
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Bon choix.',
+                ]);
+            } elseif ($response == 'refuse') {
+                // Delete the application
+                DB::table('applications')
+                    ->where('id', $application_id)
+                    ->delete();
+    
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Application deleted.',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid response.',
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Wait for the professor answer.',
+            ]);
+        }
+    }
+    function DeleteApplication(Request $request, $id_user){
         $isGroupAdmin = DB::table('groups')
             ->where('id_group_admin', $id_user)
             ->exists();
@@ -464,42 +563,14 @@ class StudentController extends Controller
                 'status' => 'error',
                 'message' => 'You are not authorized to update the application response.',
             ]);
-        }
-        // Update the application response
-        DB::table('applications')
-            ->where('id', $application_id)
-            ->update(['response_admin' => $response]);
-        if ($response == 'accepted') {
+        }else{
+            $application_id = $request->application_id;
+            $applications = DB::delete('delete from applications where id =?', [$application_id]);
             return response()->json([
-                'status' => 'success',
-                'message' => 'Bon choix.',
-            ]);
-        } elseif ($response == 'refuse') {
-            // Delete the application
-            DB::table('applications')
-                ->where('id', $application_id)
-                ->delete();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Application deleted.',
-            ]);
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid response.',
+                'status' => '200',
+                'message' => ' application deleted ',
             ]);
         }
-    }
-    function DeleteApplication(Request $request, $id_user){
-        $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
-        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
-        $id_group = $id_group[0]["id"];
-        $id_project = $request->id_project;
-        $applications = DB::delete('delete from applications where id_group = ? and id_project = ?', [$id_group,$id_project]);
-        return response()->json([
-            'status' => '200',
-            'message' => 'deleted ',
-            ]);
     }
     function GetGroupMembers(Request $request, $id_user) {
         $user = $id_user;
@@ -526,7 +597,6 @@ class StudentController extends Controller
                 }
             }
         }
-    
         return response()->json([
             'status' => 'success',
             'group_id' => $group,
@@ -534,63 +604,71 @@ class StudentController extends Controller
         ]);
     }
     function QuitGroup(Request $request, $id_user){
-      $id_group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_student,$id_student,$id_student,$id_student,$id_student]);
-      $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
-      $group_data = array_slice($id_group[0], 1, null, true);
-      $role = array_search($id_student, $group_data);
-      $nbrOfmembers = count($group_data);
-
-      if($role == "id_group_admin") {
-        // check if the group has only one member
-        if($nbrOfmembers == 1) {
-            $result = DB::delete('delete from groups where id = ?', [$id_group[0]["id"]]);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Group deleted successfully',
-            ]);
-        } else {
-            // the group has more than one member
-            $id_group_admin = $group_data["id_group_admin"];
-            $updeted_array = array_values(array_filter($group_data, function ($value) use ($id_group_admin) {
-                return !is_null($value) && $value !== $id_group_admin;
-            }));
-            $result = DB::update(
-                "update groups set id_group_admin =?,id_user2=?,id_user3=?,id_user4=?,id_user5=? where id=?",
-                [$updeted_array[0],$updeted_array[1],$updeted_array[2],$updeted_array[3],$updeted_array[4],$id_group[0]["id"]]
-            );
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User quit successfully',
-            ]);
+        $id_group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
+        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
+        $group_data = array_slice($id_group[0], 1, null, true);
+        $role = array_search($id_user, $group_data);
+        $nbrOfmembers = count($group_data);
+    
+        if ($role == "id_group_admin") {
+            // check if the group has only one member
+            if ($nbrOfmembers == 1) {
+                $result = DB::delete('delete from groups where id = ?', [$id_group[0]["id"]]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Group deleted successfully',
+                ]);
+            } else {
+                // the group has more than one member
+                $id_group_admin = $group_data["id_group_admin"];
+                $updeted_array = array_values(array_filter($group_data, function ($value) use ($id_group_admin) {
+                    return !is_null($value) && $value !== $id_group_admin;
+                }));
+    
+                // Update the array with null values if any
+                $updeted_array = array_pad($updeted_array, 5, null);
+    
+                $result = DB::update(
+                    "update groups set id_group_admin =?,id_user2=?,id_user3=?,id_user4=?,id_user5=? where id=?",
+                    [$updeted_array[0], $updeted_array[1], $updeted_array[2], $updeted_array[3], $updeted_array[4], $id_group[0]["id"]]
+                );
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'User quit successfully',
+                ]);
+            }
+        } elseif ($role == "id_user2" || $role == "id_user3" || $role == "id_user4" || $role == "id_user5") {
+            // check if the user is the last member of the group
+            if ($nbrOfmembers == 1) {
+                $result = DB::delete('delete from groups where id = ?', [$id_group[0]["id"]]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Group deleted successfully',
+                ]);
+            } else {
+                // the group has more than one member
+                $updated_array = $group_data;
+                $updated_array[$role] = null;
+    
+                // Update the array with null values if any
+                $updated_array = array_pad($updated_array, 5, null);
+    
+                $result = DB::update(
+                    "update groups set id_user2=?,id_user3=?,id_user4=?,id_user5=? where id=?",
+                    [$updated_array["id_user2"], $updated_array["id_user3"], $updated_array["id_user4"], $updated_array["id_user5"], $id_group[0]["id"]]
+                );
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'User quit successfully',
+                ]);
+            }
         }
-      } elseif($role == "user2" || $role == "id_user3" || $role == "id_user4" || $role == "id_user5") {
-        // check if the user is the last member of the group
-        if ($nbrOfmembers == 1) {
-            $result = DB::delete('delete from groups where id = ?', [$id_group[0]["id"]]);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Group deleted successfully',
-            ]);
-        } else {
-            // the group has more than one member
-            $updated_array = $group_data;
-            $updated_array[$role] = null;
-            $result = DB::update(
-                "update groups set id_user2=?,id_user3=?,id_user4=?,id_user5=? where id=?",
-                [$updated_array["id_user2"],$updated_array["id_user3"],$updated_array["id_user4"],$updated_array["id_user5"],$id_group[0]["id"]]
-            );
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User quit successfully',
-            ]);
-          }
-      }
-    }
+    }    
     function GetAnnonceFromSuperviser(Request $request, $id_user){
-        $id_group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_student,$id_student,$id_student,$id_student,$id_student]);
+        $id_group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
         $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
         $id_group = $id_group[0]["id"];
-        $result = DB::select('select * from annonce where id_group = ?',[$id_group]);
+        $result = DB::select('select * from annonces where group_id = ?',[$id_group]);
         return response()->json([
             'status' => 'annonce fetched',
             'group' => $result,
@@ -617,7 +695,6 @@ class StudentController extends Controller
             'message' => 'Task not found.',
         ]);
         }
-
        $task->title = $request->input('title');
        $task->description = $request->input('description');
        $task->save();
@@ -669,7 +746,6 @@ class StudentController extends Controller
         $file->name = $fileName;
         $file->user_id =$id_user;
         $file->save();
-
         return response()->json([
             'status' => 'success',
             'file' => $file,
@@ -678,12 +754,12 @@ class StudentController extends Controller
     function GetAllProgressionVideo(Request $request,$id_user){
         $userId = $id_user;
         // Retrieve the user's filliere
-        $userFilliere = User::findOrFail($userId)->filliere;
+        $userFiliere = User::findOrFail($userId)->filiere;
     
         // Retrieve the video files that match the specified conditions
         $files = File::where('type', 'progression')
-                     ->whereHas('user', function ($query) use ($userFilliere) {
-                         $query->where('filliere', $userFilliere);
+                     ->whereHas('user', function ($query) use ($userFiliere) {
+                         $query->where('filiere', $userFiliere);
                      })
                      ->get();
     
@@ -697,6 +773,22 @@ class StudentController extends Controller
             'video_urls' => $videoUrls,
         ]);
     }
+    function calculateProgression(Request $request,$id_user){
+        // Get the total number of tasks for the user
+        $totalTasks = Task::where('user_id', $id_user)->count();
+    
+        // Get the number of completed tasks for the user
+        $completedTasks = Task::where('user_id', $id_user)->where('done', 'completed')->count();
+    
+        // Calculate the progression percentage
+        $progression = ($completedTasks / $totalTasks) * 100;
+    
+        return response()->json([
+            'status' => 'success',
+            'message'=> 'progression',
+            'progression' => $progression,
+        ]);
+    }/// need to think more on it 
     
     
 

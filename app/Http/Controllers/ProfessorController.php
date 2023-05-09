@@ -119,15 +119,25 @@ class ProfessorController extends Controller
             'project' => $results,
         ]);
     }
-    function ResponseforApplication(Request $request, $id_user){
-        $id_project = $request->id_project;
-        $id_group = $request->id_group;
+    function ResponseforApplication(Request $request, $id_user) {
+        $id_application = $request->id_application;
         $response = $request->response;
-        $applications = DB::update('update applications set response = ? where id_group= ?and id_project =?', [$response ,$id_group,$id_project]);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'done',
-        ]); 
+    
+        $applications = DB::update('update applications set response = ? where id = ?', [$response, $id_application]);
+    
+        if ($response == 'refuse') {
+            $applications = DB::delete('delete from applications where id = ?', [$id_application]);
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Application deleted successfully.',
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Application updated successfully.',
+            ]);
+        }
     }
     function GetMyGroups(Request $request , $id_user){
         $results = DB::table('applications')
@@ -157,8 +167,8 @@ class ProfessorController extends Controller
                      'member5.surname as member5_surname',
                      'member5.email as member5_email')
             ->where('projects.id_user', $id_user)
-            ->where('applications.response_prof', 'accepted')
-            //->where('applications.response_etu', 'accepted')
+            ->where('applications.response', 'accepted')
+            ->where('applications.response_admin', 'accepted')
             ->get();
         return response()->json([
             'status' => '200',
@@ -180,8 +190,9 @@ class ProfessorController extends Controller
         $id_group = DB::table('applications')
                      ->where('id_project', $id_project)
                      ->where('response', 'accepted')
+                     ->where('response_admin', 'accepted')
                      ->value('id_group');
-        $rendez_vous->to =$id_group;
+        $rendez_vous->to = $id_group;
         $rendez_vous->save();
         return response()->json([
             'status' => '200',
@@ -213,11 +224,21 @@ class ProfessorController extends Controller
         ]);
     }
     function ResponeForMyMeetingToAttend(Request $request, $id_user){
-        $rendez_vous = DB::update('update rendez_vous set response = ? where id_user = ? and id = ?',[$id_user,$request->response]);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'done',
-        ]);    
+        if ($request->response == 'refuse') {
+            $rendez_vous = DB::delete('delete from rendez_vous where id = ?', [$request->id_rendezVous]);
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Meeting deleted successfully.',
+            ]);
+        } else {
+            $rendez_vous = DB::update('update rendez_vous set response = ? where id_user = ? and id = ?', [$request->response, $id_user, $request->id_rendezVous]);
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Response updated successfully.',
+            ]);
+        }
     }
     function SendAnnonceToGroup(Request $request, $id_user){
         $id_project = DB::table('projects')
@@ -256,8 +277,8 @@ class ProfessorController extends Controller
         $userFilliere = $request->input('filiere');
         // Retrieve the video files that match the specified conditions
         $files = File::where('type', 'progression')
-                     ->whereHas('user', function ($query) use ($userFilliere) {
-                         $query->where('filliere', $userFilliere);
+                     ->whereHas('user', function ($query) use ($userFiliere) {
+                         $query->where('filiere', $userFiliere);
                      })
                      ->get();
         // Extract the video URLs from the files

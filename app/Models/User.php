@@ -25,10 +25,10 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
     {
         return $this->belongsToMany('App\Models\Role','role_users');
     }
-    public function Project()
-    {
-        return $this->hasMany(Project::class);
-    }
+    public function projects()
+{
+    return $this->hasMany(Project::class, 'id_user');
+}
     public function file()
     {
         return $this->hasMany(File::class);

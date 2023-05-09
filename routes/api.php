@@ -50,7 +50,7 @@ Route::post('/RendezVous/{id_user}',[ProfessorController::class,'CreateMeeting']
 Route::get('/Sujets/All/{id_user}',[ProfessorController::class,'DropDownSujets']);
 Route::get('/RendezVous/All/{id_user}',[ProfessorController::class,'MyMeetingToAttend']);
 Route::post('/RendezVous/response/{id_user}',[ProfessorController::class,'ResponeForMyMeetingToAttend']);
-Route::post('/Application/Update/Response/{id_user}',[ApplicationsController::class,'ResponseforApplication']);
+Route::post('/Application/Update/Response/{id_user}',[ProfessorController::class,'ResponseforApplication']);
 Route::post('/Annonce/create/{id_user}',[ProfessorController::class,'SendAnnonceToGroup']);
 Route::get('/Annonce/get/all/{id_user}',[ProfessorController::class,'GetMyAnnonce']);
 Route::post('/files/Pregression/all/', [ProfessorController::class, 'GetAllProgressionVideo']);
@@ -63,7 +63,7 @@ Route::post('/Rendezvous/{id_user}',[StudentController::class,'CreateMeetingWith
 Route::post('/Join/Group/{id_user}',[StudentController::class,'JoinGroup']);
 Route::get('/Demende/Rejoindre/{id_user}',[StudentController::class,'GetInvitations']);
 Route::post('/Response/Demandes/{id_user}',[StudentController::class,'RespondToInvitation']);
-Route::get('/User/Quit/{id_student}',[StudentController::class,'QuitGroup']);
+Route::post('/User/Quit/{id_student}',[StudentController::class,'QuitGroup']);
 Route::post('/Project/Apply/{id_user}',[StudentController::class,'ApplyToProject']);
 Route::get('/Applications/All/{id_student}',[StudentController::class,'GetMyApplications']);
 Route::post('/Application/delete/{id_student}',[StudentController::class,'DeleteApplication']);
@@ -73,9 +73,10 @@ Route::post('/Task/Modify/{user_id}',[StudentController::class,'ModifyTask']);
 Route::post('/Task/delete/{user_id}',[StudentController::class,'DeleteTask']);
 Route::get('/Task/all/{user_id}',[StudentController::class,'GetMyTasks']);
 Route::post('/files/Upload/{id_user}', [StudentController::class, 'uploadFile']);
-Route::post('/files/Pregression/all/{id_user}', [StudentController::class, 'GetAllProgressionVideo']);
+Route::get('/files/Progression/all/{id_user}', [StudentController::class, 'GetAllProgressionVideo']);
 Route::get('/group/{id_user}',[StudentController::class,'GetGroupMembers']);
-Route::post('/response/group/response',[StudentController::class,'MyFinalResposeForApplication']);
+Route::post('/response/group/{id_user}',[StudentController::class,'MyFinalResposeForApplication']);
+Route::get('/Meet/All/{id_user}',[StudentController::class,'GetMeetingToAttend']);
 
 
 

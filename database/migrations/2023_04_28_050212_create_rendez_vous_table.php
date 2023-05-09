@@ -20,8 +20,7 @@ return new class extends Migration
             $table->string('date');
             $table->time('heure');
             $table->string('objet');
-            $table->integer('to')->unsigned();
-            $table->foreign('to')->references('id')->on('users')->onDelete('cascade');
+            $table->integer('to');
             $table->string('response')->nullable();
             $table->timestamps();
         });
