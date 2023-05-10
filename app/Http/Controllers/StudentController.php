@@ -16,6 +16,7 @@ class StudentController extends Controller
 {
     public function __construct()
     {
+        $this->middleware('auth:api');
         $this->middleware('check.role:Etu');
     }
      
@@ -201,7 +202,7 @@ class StudentController extends Controller
         if ($invitation_exists) {
             $id_group = $invitation_exists->id_group;
     
-            // Check if the user is already a member of the group
+            // Check if the user is a member of the group
             $isMember = DB::table('groups')
                 ->where('id_group_admin', $id_user)
                 ->orWhere('id_user2', $id_user)
@@ -212,6 +213,10 @@ class StudentController extends Controller
                 ->exists();
     
             if ($isMember) {
+                // Retrieve the ID of the new member
+                $id_new_member = DB::select('SELECT id_etudiant FROM invitations WHERE id = ?', [$id_invitation]);
+                $id_new_member = $id_new_member[0]->id_etudiant;
+    
                 $invitation_response = DB::table('invitations')
                     ->where('id', $id_invitation)
                     ->update(['response' => $response]);
@@ -243,7 +248,7 @@ class StudentController extends Controller
                         // Add the user to the group
                         DB::table('groups')
                             ->where('id', $id_group)
-                            ->update([$columnToUpdate => $id_user]);
+                            ->update([$columnToUpdate => $id_new_member]);
     
                         // Delete the invitation
                         DB::table('invitations')
@@ -252,7 +257,7 @@ class StudentController extends Controller
     
                         return response()->json([
                             'status' => 'success',
-                            'message' => 'You user joined the group successfully.',
+                            'message' => 'Your user joined the group successfully.',
                         ]);
                     } else {
                         // Update the invitation response to "refused"
@@ -409,7 +414,7 @@ class StudentController extends Controller
                 $nonEmptyValues = array_filter($group_data);
                 $nbrOfMembers = count($nonEmptyValues);
                 $nbrOfMembers--;
-    
+                $nbrOfMembers--;
                 $nbrPersonne = DB::select('select NbrPersonnes from projects where id = ?', [$project]);
                 $nbrPersonne = array_map(function ($value) {
                     return (array) $value;
@@ -488,7 +493,7 @@ class StudentController extends Controller
     }
     function MyFinalResposeForApplication(Request $request, $id_user){
         $application_id = $request->application_id;
-        $response = $request->input('response_admin');
+        $response = $request->response;
     
         // Check if the user is the group admin
         $isGroupAdmin = DB::table('groups')
@@ -505,6 +510,7 @@ class StudentController extends Controller
         $response_prof = DB::table('applications')
             ->where('id', $application_id)
             ->value('response');
+            
         $id_group = DB::table('applications')
             ->where('id', $application_id)
             ->value('id_group');
@@ -606,7 +612,7 @@ class StudentController extends Controller
     function QuitGroup(Request $request, $id_user){
         $id_group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
         $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
-        $group_data = array_slice($id_group[0], 1, null, true);
+        $group_data = array_slice($id_group[0], 1, -2, true);
         $role = array_search($id_user, $group_data);
         $nbrOfmembers = count($group_data);
     

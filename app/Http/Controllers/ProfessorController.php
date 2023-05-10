@@ -14,7 +14,8 @@ use Illuminate\Database\QueryException;
 class ProfessorController extends Controller
 {
     public function __construct()
-    {
+    { 
+        $this->middleware('auth:api');
         $this->middleware('check.role:Ens');
     }
     function CreateProject(Request $request,$id){
@@ -213,14 +214,28 @@ class ProfessorController extends Controller
         ]);
     }
     function MyMeetingToAttend(Request $request, $id_user){
-        $rendez_vous = DB::table('rendez_vous')
+        $meetings = DB::table('rendez_vous')
         ->select('*')
         ->where('to', $id_user)
         ->get();
+        $data = [];
+        foreach ($meetings as $meeting) {
+            $group = DB::select('SELECT id FROM groups WHERE id_group_admin = ? OR id_user2 = ? OR id_user3 = ? OR id_user4 = ? OR id_user5 = ?', [$meeting->creator, $meeting->creator, $meeting->creator, $meeting->creator, $meeting->creator]);
+            $group = array_map(function ($value) {return (array) $value;}, $group);
+            $group = $group[0]["id"];
+            $pfe =  DB::select('SELECT id_project FROM applications WHERE id_group = ? and response = ? and response_admin = ?', [$group,'accepted','accepted']);
+            $pfe = array_map(function ($value) {return (array) $value;}, $pfe);
+            $pfe = $pfe[0]["id_project"];
+            $sujet = DB::select('SELECT sujet FROM projects WHERE id = ?', [$pfe]);
+            $sujet = array_map(function ($value) {return (array) $value;}, $sujet);
+            $sujet = $sujet[0]["sujet"];
+            $meeting->sujet_group = $sujet;
+            $data[] = $meeting;
+            }
         return response()->json([
             'status' => '200',
             'message' => 'Sujets fetched',
-            'sujets' => $rendez_vous,
+            'sujets' => $data,
         ]);
     }
     function ResponeForMyMeetingToAttend(Request $request, $id_user){

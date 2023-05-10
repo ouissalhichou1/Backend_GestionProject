@@ -19,6 +19,7 @@ class AdminController extends Controller
 {
     public function __construct()
     {
+        $this->middleware('auth:api');
         $this->middleware('check.role:Admin');
     }
     public function SaveUser(Request $request){

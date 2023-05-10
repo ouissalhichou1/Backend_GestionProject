@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
         'password' => Hash::make('123456789'),
         'code' =>  '22222222',
         'specialite' => 'info',
-        'email' => 'Ens@uae.ac.ma',
+        'email' => 'ens@uae.ac.ma',
         'email_verified_at' => Carbon::now(),
         'email_verification_token'=>Str::random(40),
     ]);

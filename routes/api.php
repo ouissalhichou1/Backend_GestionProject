@@ -17,8 +17,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/Project/List', [UsersController::class, 'GetAllProjects']);
 Route::get('/download-zip-file/', [UsersController::class, 'downloadZipFile']);
-Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');//
+Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::post('/password/reset', [AuthController::class, 'reset'])->name('password.reset');//
 
 //Auth 
 Route::post('logout', [AuthController::class, 'logout']);

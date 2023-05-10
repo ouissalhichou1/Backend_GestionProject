@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
@@ -19,7 +22,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register','sendResetLinkEmail','reset']]);
     }
 
     public function login(Request $request){   
@@ -58,7 +61,6 @@ class AuthController extends Controller
     }
     public function register(Request $request){
 
-        
         $request->validate([
             'name' => 'required|string|max:255',
             'surname' =>'required|string|max:255',
@@ -102,6 +104,51 @@ class AuthController extends Controller
                 return response()->json(['message' => 'An error occurred'], 500);
             }
         }
+    }
+    public function sendResetLinkEmail(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            throw ValidationException::withMessages($validator->errors()->all());
+        }
+
+        $status = Password::sendResetLink($request->only('email'));
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return response()->json(['message' => 'Reset password link sent to your email'], 200);
+        }
+
+        throw ValidationException::withMessages([
+            'email' => [trans($status)],
+        ]);
+    }
+    public function reset(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            throw ValidationException::withMessages($validator->errors()->all());
+        }
+
+        $credentials = $request->only('email', 'password', 'password_confirmation', 'token');
+
+        $response = Password::reset($credentials, function ($user, $password) {
+            $user->password = bcrypt($password);
+            $user->save();
+        });
+
+        if ($response === Password::PASSWORD_RESET) {
+            return response()->json(['message' => 'Password has been successfully reset'], 200);
+        }
+
+        throw ValidationException::withMessages([
+            'email' => [trans($response)],
+        ]);
     }
     public function logout(Request $request){
         Auth::logout();

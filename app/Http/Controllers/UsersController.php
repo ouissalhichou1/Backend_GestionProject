@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 class UsersController extends Controller
 {
+
     function GetAllProjects(){
         $projects = Project::all();
         $data = [];
