@@ -209,7 +209,7 @@ class ProfessorController extends Controller
         ->get();
         $data = [];
         foreach ($meetings as $meeting) {
-            $pfe =  DB::select('SELECT id_project FROM applications WHERE id_group = ? and response = ? and response_admin = ?', [$annonce->group_id,'accepted','accepted']);
+            $pfe =  DB::select('SELECT id_project FROM applications WHERE id_group = ? and response = ? and response_admin = ?', [$meetings->to,'accepted','accepted']);
             $pfe = array_map(function ($value) {return (array) $value;}, $pfe);
             $pfe = $pfe[0]["id_project"];
             $sujet = DB::select('SELECT sujet FROM projects WHERE id = ?', [$pfe]);
