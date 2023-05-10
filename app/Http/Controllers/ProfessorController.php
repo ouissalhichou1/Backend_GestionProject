@@ -208,7 +208,7 @@ class ProfessorController extends Controller
         ->where('creator', $id_user)
         ->get();
         $data = [];
-        foreach ($annonces as $annonce) {
+        foreach ($meetings as $meeting) {
             $pfe =  DB::select('SELECT id_project FROM applications WHERE id_group = ? and response = ? and response_admin = ?', [$annonce->group_id,'accepted','accepted']);
             $pfe = array_map(function ($value) {return (array) $value;}, $pfe);
             $pfe = $pfe[0]["id_project"];
@@ -216,12 +216,12 @@ class ProfessorController extends Controller
             $sujet = array_map(function ($value) {return (array) $value;}, $sujet);
             $sujet = $sujet[0]["sujet"];
             $annonce->sujet_group = $sujet;
-            $data[] = $annonce;
+            $data[] = $meetings;
             }
         return response()->json([
             'status' => '200',
             'message' => 'Sujets fetched',
-            'annonce' => $data,
+            'meeting' => $data,
         ]);
     }
     function DropDownSujets(Request $request, $id_user) {
