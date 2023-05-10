@@ -48,7 +48,8 @@ Route::get('/Project/Applications/All/{id_user}',[ProfessorController::class,'Ge
 Route::get('/Groups/All/{id_user}',[ProfessorController::class,'GetMyGroups']);
 Route::post('/RendezVous/{id_user}',[ProfessorController::class,'CreateMeeting']);
 Route::get('/Sujets/All/{id_user}',[ProfessorController::class,'DropDownSujets']);
-Route::get('/RendezVous/All/{id_user}',[ProfessorController::class,'MyMeetingToAttend']);
+Route::get('/RendezVous/Invitations/All/{id_user}',[ProfessorController::class,'MyMeetingToAttend']);
+Route::get('/RendezVous/All/{id_user}',[ProfessorController::class,'GetMyMeetings']);
 Route::post('/RendezVous/response/{id_user}',[ProfessorController::class,'ResponeForMyMeetingToAttend']);
 Route::post('/Application/Update/Response/{id_user}',[ProfessorController::class,'ResponseforApplication']);
 Route::post('/Annonce/create/{id_user}',[ProfessorController::class,'SendAnnonceToGroup']);
