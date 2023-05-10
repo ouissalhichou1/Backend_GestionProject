@@ -68,7 +68,7 @@ Route::post('/User/Quit/{id_student}',[StudentController::class,'QuitGroup']);
 Route::post('/Project/Apply/{id_user}',[StudentController::class,'ApplyToProject']);
 Route::get('/Applications/All/{id_student}',[StudentController::class,'GetMyApplications']);
 Route::post('/Application/delete/{id_student}',[StudentController::class,'DeleteApplication']);
-Route::post('/Annonce/{id_user}',[StudentController::class,'GetAnnonceFromSuperviser']);
+Route::get('/Annonce/{id_user}',[StudentController::class,'GetAnnonceFromSuperviser']);
 Route::post('/Task/Crate/{id_user}',[StudentController::class,'CreateTask']);
 Route::post('/Task/Modify/{user_id}',[StudentController::class,'ModifyTask']);
 Route::post('/Task/delete/{user_id}',[StudentController::class,'DeleteTask']);

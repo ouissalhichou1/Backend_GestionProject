@@ -357,7 +357,7 @@ class StudentController extends Controller
         ->get();
         $data = [];
         foreach ($meetings as $meeting) {
-            $encadrant =  DB::select('SELECT name , surname FROM users WHERE id = ? ', [$meetings->to]);
+            $encadrant =  DB::select('SELECT name , surname FROM users WHERE id = ? ', [$meeting->to]);
             $encadrant = array_map(function ($value) {return (array) $value;}, $encadrant);
             $encadrant =$encadrant[0]["name"] . " " . $encadrant[0]["surname"];
             $meeting->encadrant = $encadrant;
