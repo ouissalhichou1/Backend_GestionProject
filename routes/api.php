@@ -78,6 +78,7 @@ Route::get('/files/Progression/all/{id_user}', [StudentController::class, 'GetAl
 Route::get('/group/{id_user}',[StudentController::class,'GetGroupMembers']);
 Route::post('/response/group/{id_user}',[StudentController::class,'MyFinalResposeForApplication']);
 Route::get('/Meet/All/{id_user}',[StudentController::class,'GetMeetingToAttend']);
+Route::get('/RendezVous//All/{id_user}',[StudentController::class,'GetMyMeetings']);
 
 
 

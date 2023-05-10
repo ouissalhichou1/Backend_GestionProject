@@ -350,6 +350,28 @@ class StudentController extends Controller
             ]);
         }
     }   
+    function GetMyMeetings(Request $request, $id_user){
+        $meetings = DB::table('rendez_vous')
+        ->select('*')
+        ->where('creator', $id_user)
+        ->get();
+        $data = [];
+        foreach ($meetings as $meeting) {
+            $pfe =  DB::select('SELECT id_project FROM applications WHERE id_group = ? and response = ? and response_admin = ?', [$annonce->group_id,'accepted','accepted']);
+            $pfe = array_map(function ($value) {return (array) $value;}, $pfe);
+            $pfe = $pfe[0]["id_project"];
+            $sujet = DB::select('SELECT sujet FROM projects WHERE id = ?', [$pfe]);
+            $sujet = array_map(function ($value) {return (array) $value;}, $sujet);
+            $sujet = $sujet[0]["sujet"];
+            $annonce->sujet_group = $sujet;
+            $data[] = $meetings;
+            }
+        return response()->json([
+            'status' => '200',
+            'message' => 'Sujets fetched',
+            'meeting' => $data,
+        ]);
+    }
     function GetMeetingToAttend(Request $request, $id_user){
         $id_group = DB::select('select id from groups where id_group_admin = ? or id_user2 = ? or id_user3 = ? or id_user4 = ? or id_user5 = ?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
         $id_group = array_map(function ($value) {return (array)$value;}, $id_group);

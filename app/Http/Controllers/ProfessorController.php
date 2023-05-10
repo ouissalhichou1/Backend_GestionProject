@@ -215,8 +215,8 @@ class ProfessorController extends Controller
             $sujet = DB::select('SELECT sujet FROM projects WHERE id = ?', [$pfe]);
             $sujet = array_map(function ($value) {return (array) $value;}, $sujet);
             $sujet = $sujet[0]["sujet"];
-            $annonce->sujet_group = $sujet;
-            $data[] = $meetings;
+            $meeting->sujet_group = $sujet;
+            $data[] = $meeting;
             }
         return response()->json([
             'status' => '200',
