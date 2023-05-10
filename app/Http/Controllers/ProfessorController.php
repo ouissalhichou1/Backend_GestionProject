@@ -247,7 +247,7 @@ class ProfessorController extends Controller
                 'message' => 'Meeting deleted successfully.',
             ]);
         } else {
-            $rendez_vous = DB::update('update rendez_vous set response = ? where id_user = ? and id = ?', [$request->response, $id_user, $request->id_rendezVous]);
+            $rendez_vous = DB::update('update rendez_vous set response = ? where id = ?', [$request->response, $request->id_rendezVous]);
     
             return response()->json([
                 'status' => 'success',
@@ -267,7 +267,7 @@ class ProfessorController extends Controller
         $annonce = new Annonce;
         $annonce->title = $request->input('title');
         $annonce->message = $request->input('message');
-        $annonce->id_group = $id_group;
+        $annonce->group_id = $id_group;
         $annonce->id_user = $id_user;
         $annonce->save();
         return response()->json([
@@ -275,17 +275,28 @@ class ProfessorController extends Controller
             'message'=>'annonce created successfully',
             'project' => $annonce,
         ]);
-
-
     }
     function GetMyAnnonce(Request $request, $id_user){
-        $result=DB::select('select * from annonce where id_user = ?',[$id_user]);
+        $annonces = DB::table('annonces')
+        ->select('*')
+        ->where('user_id', $id_user)
+        ->get();
+        $data = [];
+        foreach ($annonces as $annonce) {
+            $pfe =  DB::select('SELECT id_project FROM applications WHERE id_group = ? and response = ? and response_admin = ?', [$annonce->group_id,'accepted','accepted']);
+            $pfe = array_map(function ($value) {return (array) $value;}, $pfe);
+            $pfe = $pfe[0]["id_project"];
+            $sujet = DB::select('SELECT sujet FROM projects WHERE id = ?', [$pfe]);
+            $sujet = array_map(function ($value) {return (array) $value;}, $sujet);
+            $sujet = $sujet[0]["sujet"];
+            $meeting->sujet_group = $sujet;
+            $data[] = $annonce;
+            }
         return response()->json([
             'status' => '200',
-            'message'=>'annonce fetched',
-            'project' => $result,
+            'message' => 'Sujets fetched',
+            'meeting' => $data,
         ]);
-
     }
     function GetAllProgressionVideo(Request $request) {
         // Retrieve the user's filliere
