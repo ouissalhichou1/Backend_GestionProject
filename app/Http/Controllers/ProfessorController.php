@@ -88,7 +88,7 @@ class ProfessorController extends Controller
             $join->on('file5.user_id', '=', 'member5.id')
                  ->where('file5.type', '=', 'releve_note');
         })
-        ->select('projects.id as project_id',
+        ->select('applications.id as application_id',
                  'groups.id as group_id',
                  'projects.sujet',
                  'member1.name as member1_name',
