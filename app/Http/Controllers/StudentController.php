@@ -357,14 +357,11 @@ class StudentController extends Controller
         ->get();
         $data = [];
         foreach ($meetings as $meeting) {
-            $pfe =  DB::select('SELECT id_project FROM applications WHERE id_group = ? and response = ? and response_admin = ?', [$annonce->group_id,'accepted','accepted']);
-            $pfe = array_map(function ($value) {return (array) $value;}, $pfe);
-            $pfe = $pfe[0]["id_project"];
-            $sujet = DB::select('SELECT sujet FROM projects WHERE id = ?', [$pfe]);
-            $sujet = array_map(function ($value) {return (array) $value;}, $sujet);
-            $sujet = $sujet[0]["sujet"];
-            $annonce->sujet_group = $sujet;
-            $data[] = $meetings;
+            $encadrant =  DB::select('SELECT name , surname FROM users WHERE id = ? ', [$meetings->to]);
+            $encadrant = array_map(function ($value) {return (array) $value;}, $encadrant);
+            $encadrant =$encadrant[0]["name"] . " " . $encadrant[0]["surname"];
+            $meeting->encadrant = $encadrant;
+            $data[] = $meeting;
             }
         return response()->json([
             'status' => '200',
