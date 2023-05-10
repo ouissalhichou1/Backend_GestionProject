@@ -205,7 +205,7 @@ class ProfessorController extends Controller
     function GetMyMeetings(Request $request, $id_user){
         $meetings = DB::table('rendez_vous')
         ->select('*')
-        ->where('user_id', $id_user)
+        ->where('creator', $id_user)
         ->get();
         $data = [];
         foreach ($annonces as $annonce) {

@@ -356,7 +356,7 @@ class StudentController extends Controller
         $id_group  = $id_group[0]["id"];
         $rendez_vous = DB::table('rendez_vous')
         ->select('*')
-        ->where('to', $id_user)
+        ->where('to', $id_group)
         ->get();
         return response()->json([
             'status' => '200',
