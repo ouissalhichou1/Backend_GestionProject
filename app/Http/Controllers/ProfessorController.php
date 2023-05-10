@@ -202,6 +202,28 @@ class ProfessorController extends Controller
         ]);
 
     }
+    function GetMyMeetings(Request $request, $id_user){
+        $meetings = DB::table('rendez_vous')
+        ->select('*')
+        ->where('user_id', $id_user)
+        ->get();
+        $data = [];
+        foreach ($annonces as $annonce) {
+            $pfe =  DB::select('SELECT id_project FROM applications WHERE id_group = ? and response = ? and response_admin = ?', [$annonce->group_id,'accepted','accepted']);
+            $pfe = array_map(function ($value) {return (array) $value;}, $pfe);
+            $pfe = $pfe[0]["id_project"];
+            $sujet = DB::select('SELECT sujet FROM projects WHERE id = ?', [$pfe]);
+            $sujet = array_map(function ($value) {return (array) $value;}, $sujet);
+            $sujet = $sujet[0]["sujet"];
+            $annonce->sujet_group = $sujet;
+            $data[] = $annonce;
+            }
+        return response()->json([
+            'status' => '200',
+            'message' => 'Sujets fetched',
+            'annonce' => $data,
+        ]);
+    }
     function DropDownSujets(Request $request, $id_user) {
         $sujets = DB::table('projects')
                     ->select('sujet')
@@ -268,7 +290,7 @@ class ProfessorController extends Controller
         $annonce->title = $request->input('title');
         $annonce->message = $request->input('message');
         $annonce->group_id = $id_group;
-        $annonce->id_user = $id_user;
+        $annonce->user_id = $id_user;
         $annonce->save();
         return response()->json([
             'status' => '200',
@@ -289,13 +311,13 @@ class ProfessorController extends Controller
             $sujet = DB::select('SELECT sujet FROM projects WHERE id = ?', [$pfe]);
             $sujet = array_map(function ($value) {return (array) $value;}, $sujet);
             $sujet = $sujet[0]["sujet"];
-            $meeting->sujet_group = $sujet;
+            $annonce->sujet_group = $sujet;
             $data[] = $annonce;
             }
         return response()->json([
             'status' => '200',
             'message' => 'Sujets fetched',
-            'meeting' => $data,
+            'annonce' => $data,
         ]);
     }
     function GetAllProgressionVideo(Request $request) {
