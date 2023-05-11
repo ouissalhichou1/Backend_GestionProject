@@ -155,7 +155,7 @@ class AdminController extends Controller
     function listAffectationPFE() {
        $users = DB::table('users')
            ->whereNotNull('apogee')
-           ->select('id', 'name', 'surname')
+           ->select('id', 'name', 'surname','filiere')
            ->get();
    
        $response = [];
@@ -191,6 +191,7 @@ class AdminController extends Controller
                        'user_id' => $userId,
                        'user_name' => $user->name." ".$user->surname,
                        'encadrant' => $application->name." ".$application->surname,
+                       'filiere'=> $user->filiere,
                    ];
                }
            }
