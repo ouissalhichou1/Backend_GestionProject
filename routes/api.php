@@ -36,9 +36,8 @@ Route::post('/Admin/upload-zip-file', [AdminController::class, 'uploadZipFile'])
 Route::get('Admin/User/List',[AdminController::class,'ListUsersWithTheirRole']);
 Route::post('/Admin/Group/Delete/',[AdminController::class,'DeleteGroup']);
 Route::get('/groups/all',[UsersController::class,'GetAllGroupsAndMembers']);
-Route::get('/List/PFE',[AdminController::class,'GetUserGroupDetails']);
-Route::get('/List/PFE',[AdminController::class,'GetUserGroupDetailsAsCSVFile']);
-Route::post('/Pregression/all/', [ProfessorController::class, 'GetAllProgressionVideo']);
+Route::get('/List/PFE',[AdminController::class,'listAffectationPFE']);
+Route::post('/Pregression/all/', [AdminController::class, 'GetAllProgressionVideo']);
 
 //Professor Routes
 Route::post('/Project/Save/{id}',[ProfessorController::class,'CreateProject']);

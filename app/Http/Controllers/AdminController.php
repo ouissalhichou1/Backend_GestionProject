@@ -152,49 +152,51 @@ class AdminController extends Controller
             'group_members' => $data,
         ]);
     }
-    function GetUserGroupDetails(){
-        $users = DB::table('users')
-            ->whereNotNull('apogee')
-            ->select('id', 'name', 'surname')
-            ->get();
-    
-        $response = [];
-    
-        foreach ($users as $user) {
-            $userId = $user->id;
-    
-            $group = DB::table('groups')
-                ->where(function ($query) use ($userId) {
-                    $query->where('id_group_admin', $userId)
-                        ->orWhere('id_user2', $userId)
-                        ->orWhere('id_user3', $userId)
-                        ->orWhere('id_user4', $userId)
-                        ->orWhere('id_user5', $userId);
-                })
-                ->select('id')
-                ->first();
-    
-            if ($group) {
-                $groupId = $group->id;
-    
-                $application = DB::table('applications')
-                    ->join('projects', 'applications.id_project', '=', 'projects.id')
-                    ->join('users', 'projects.id_user', '=', 'users.id')
-                    ->where('applications.id_group', $groupId)
-                    ->select('projects.id_user', 'users.name', 'users.surname')
-                    ->first();
-    
-                if ($application) {
-                    $response[] = [
-                        'user_id' => $userId,
-                        'user_name' => $user->name." ".$user->surname,
-                        'project_owner_name' => $application->name." ".$application->surname,
-                    ];
-                }
-            }
-        }
-    
-        return response()->json($response);
+    function listAffectationPFE() {
+       $users = DB::table('users')
+           ->whereNotNull('apogee')
+           ->select('id', 'name', 'surname')
+           ->get();
+   
+       $response = [];
+   
+       foreach ($users as $user) {
+           $userId = $user->id;
+   
+           $groups = DB::table('groups')
+               ->where(function ($query) use ($userId) {
+                   $query->where('id_group_admin', $userId)
+                       ->orWhere('id_user2', $userId)
+                       ->orWhere('id_user3', $userId)
+                       ->orWhere('id_user4', $userId)
+                       ->orWhere('id_user5', $userId);
+               })
+               ->select('id')
+               ->get();
+   
+           foreach ($groups as $group) {
+               $groupId = $group->id;
+   
+               $applications = DB::table('applications')
+                   ->join('projects', 'applications.id_project', '=', 'projects.id')
+                   ->join('users', 'projects.id_user', '=', 'users.id')
+                   ->where('applications.id_group', $groupId)
+                   ->where('applications.response','accepted')
+                   ->where('applications.response_admin','accepted')
+                   ->select('projects.id_user', 'users.name', 'users.surname')
+                   ->get();
+   
+               foreach ($applications as $application) {
+                   $response[] = [
+                       'user_id' => $userId,
+                       'user_name' => $user->name." ".$user->surname,
+                       'encadrant' => $application->name." ".$application->surname,
+                   ];
+               }
+           }
+       }
+   
+       return response()->json($response);
     }
     function GetAllProgressionVideo(Request $request) {
         // Retrieve the user's filliere
