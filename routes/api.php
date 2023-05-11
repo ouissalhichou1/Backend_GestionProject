@@ -35,7 +35,7 @@ Route::post('/Admin/User/Professor/Delete', [AdminController::class,'DeleteProfe
 Route::post('/Admin/upload-zip-file', [AdminController::class, 'uploadZipFile']);
 Route::get('Admin/User/List',[AdminController::class,'ListUsersWithTheirRole']);
 Route::post('/Admin/Group/Delete/',[AdminController::class,'DeleteGroup']);
-Route::get('/groups/all',[UsersController::class,'GetAllGroupsAndMembers']);
+Route::get('/groups/all',[AdminController::class,'GetAllGroupsAndMembers']);
 Route::get('/List/PFE',[AdminController::class,'listAffectationPFE']);
 Route::post('/Pregression/all/', [AdminController::class, 'GetAllProgressionVideo']);
 
