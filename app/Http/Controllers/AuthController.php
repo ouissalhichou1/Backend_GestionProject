@@ -6,15 +6,16 @@ use App\Models\User;
 use App\Mail\VerifyEmail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Mail\NewPasswordEmail;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Database\QueryException;
-use App\Mail\NewPasswordEmail;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 
@@ -61,7 +62,6 @@ class AuthController extends Controller
     }
     public function register(Request $request){
  
-        
         $request->validate([
             'name' => 'required|string|max:255',
             'surname' =>'required|string|max:255',
@@ -94,17 +94,30 @@ class AuthController extends Controller
                 'surname'=>$user->surname,
                 'role'=>$user->roles[0]->RoleName,
             ]);
-        } catch (QueryException $e) {
-            if ($e->errorInfo[1] == 1062 && strpos($e->getMessage(), 'email')) {
-                return response()->json(['message' => 'The email must be unique'], 401);
-            } else if ($e->errorInfo[1] == 1062 && strpos($e->getMessage(), 'apogee')) {
-                return response()->json(['message' => 'The apogee must be unique'], 402);
-            } else if ($e->errorInfo[1] == 1062 && strpos($e->getMessage(), 'code')) {
-                return response()->json(['message' => 'The code must be unique'], 403);
+        }catch (QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                // Get the error message
+                $errorMessage = $e->getMessage();
+        
+                // Check if the error message contains a known constraint violation
+                if (strpos($errorMessage, 'users_email_unique') !== false) {
+                    return response()->json(['message' => 'The email must be unique'], 401);
+                } else if (strpos($errorMessage, 'users_apogee_unique') !== false) {
+                    return response()->json(['message' => 'The apogee must be unique'], 402);
+                } else if (strpos($errorMessage, 'users_code_unique') !== false) {
+                    return response()->json(['message' => 'The code must be unique'], 403);
+                } else {
+                    // If the constraint violation is not known, return a generic error message
+                    return response()->json(['message' => 'An error occurred'], 500);
+                }
             } else {
+                // If the error is not a unique constraint violation, return a generic error message
                 return response()->json(['message' => 'An error occurred'], 500);
             }
         }
+        
+        
     }
     public function NewPassword(Request $request){
         $user_email = $request->input('email');
