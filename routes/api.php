@@ -12,16 +12,17 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ForgotPasswordController;
 
+
 //Users Routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/Project/List', [UsersController::class, 'GetAllProjects']);
 Route::get('/download-zip-file/', [UsersController::class, 'downloadZipFile']);
-Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
-Route::post('/password/reset', [AuthController::class, 'reset'])->name('password.reset');//
+Route::post('/password/reset', [AuthController::class,'NewPassword']);
 
 //Auth 
 Route::post('logout', [AuthController::class, 'logout']);
+Route::post('me/update/{id_user}', [AuthController::class,'updatePassword']);
 Route::post('refresh', [AuthController::class, 'refresh']);
 Route::get('me', [AuthController::class, 'me']);
 Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');//
@@ -45,6 +46,7 @@ Route::post('/Project/delete/{id_user}',[ProfessorController::class,'DeleteProje
 Route::get('/Project/All/{id_user}',[ProfessorController::class,'GetMyProjects']);
 Route::post('/Project/Modification/{id_user}',[ProfessorController::class,'ModifyProject']);
 Route::get('/Project/Applications/All/{id_user}',[ProfessorController::class,'GetApplicationsForMyProjects']);
+Route::post('/Groups/About/{id_user}',[ProfessorController::class,'aboutGroup']);
 Route::get('/Groups/All/{id_user}',[ProfessorController::class,'GetMyGroups']);
 Route::post('/RendezVous/{id_user}',[ProfessorController::class,'CreateMeeting']);
 Route::get('/Sujets/All/{id_user}',[ProfessorController::class,'DropDownSujets']);

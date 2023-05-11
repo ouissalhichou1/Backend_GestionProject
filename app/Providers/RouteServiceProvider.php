@@ -18,7 +18,7 @@ class RouteServiceProvider extends ServiceProvider
      * @var string
      */
     public const VERIFY  = '/verify';
-
+    public const RESET  = '/reset';
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
      *

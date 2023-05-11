@@ -11,18 +11,18 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
+use App\Mail\NewPasswordEmail;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+
 
 class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register','sendResetLinkEmail','reset']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register','NewPassword']]);
     }
 
     public function login(Request $request){   
@@ -105,49 +105,44 @@ class AuthController extends Controller
             }
         }
     }
-    public function sendResetLinkEmail(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-        ]);
+    public function NewPassword(Request $request){
+        $user_email = $request->input('email');
+        $user = DB::table('users')
+            ->select('id')
+            ->where('email', $user_email)
+            ->first(); 
+        $result = DB::select('select name, surname from users where id = ?', [$user->id]);
+        $result = array_map(function ($value) {return (array) $value;}, $result);
+        $userName = $result[0]["name"] . " " . $result[0]["surname"];
 
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->all());
+        if ($user) {
+            $newPassword = Str::random(10);
+            $update = DB::table('users')
+                ->where('id', $user->id)
+                ->update(['password' => bcrypt($newPassword)]); // Hash the new password before updating
+    
+            if ($update) {
+                Mail::to($user_email)->send(new NewPasswordEmail($userName,$newPassword));
+                return response()->json([
+                    'status' => '200',
+                    'message' => 'Check your email. A new password has been sent to you.',
+                ]);
+            }
         }
-
-        $status = Password::sendResetLink($request->only('email'));
-
-        if ($status === Password::RESET_LINK_SENT) {
-            return response()->json(['message' => 'Reset password link sent to your email'], 200);
-        }
-
-        throw ValidationException::withMessages([
-            'email' => [trans($status)],
+    
+        return response()->json([
+            'status' => '404',
+            'message' => 'User not found.',
         ]);
     }
-    public function reset(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|confirmed|min:8',
-        ]);
-
-        if ($validator->fails()) {
-            throw ValidationException::withMessages($validator->errors()->all());
-        }
-
-        $credentials = $request->only('email', 'password', 'password_confirmation', 'token');
-
-        $response = Password::reset($credentials, function ($user, $password) {
-            $user->password = bcrypt($password);
-            $user->save();
-        });
-
-        if ($response === Password::PASSWORD_RESET) {
-            return response()->json(['message' => 'Password has been successfully reset'], 200);
-        }
-
-        throw ValidationException::withMessages([
-            'email' => [trans($response)],
+    public function updatePassword(Request $request,$user){
+        $newPassword = $request->input('password');
+        $update = DB::table('users')
+            ->where('id', $user->id)
+            ->update(['password' => $newPassword]); //
+        return response()->json([
+            'status'=>'200',
+            'message'=>'good',
         ]);
     }
     public function logout(Request $request){
