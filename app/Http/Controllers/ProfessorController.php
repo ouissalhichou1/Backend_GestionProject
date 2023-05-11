@@ -73,10 +73,8 @@ class ProfessorController extends Controller
             'applications' => $results,
         ]);
     }
-    function aboutGroup(Request $request,$id_user){
+    function aboutGroup(Request $request,$id_group){
        
-        $id_group = $request->group_id;
-        
         if(!$id_group) {
             return response()->json([
                 'status' => '400',
