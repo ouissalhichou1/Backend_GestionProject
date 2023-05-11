@@ -798,22 +798,6 @@ class StudentController extends Controller
             'video_urls' => $videoUrls,
         ]);
     }
-    function calculateProgression(Request $request,$id_user){
-        // Get the total number of tasks for the user
-        $totalTasks = Task::where('user_id', $id_user)->count();
-    
-        // Get the number of completed tasks for the user
-        $completedTasks = Task::where('user_id', $id_user)->where('done', 'completed')->count();
-    
-        // Calculate the progression percentage
-        $progression = ($completedTasks / $totalTasks) * 100;
-    
-        return response()->json([
-            'status' => 'success',
-            'message'=> 'progression',
-            'progression' => $progression,
-        ]);
-    }/// need to think more on it 
     
     
 

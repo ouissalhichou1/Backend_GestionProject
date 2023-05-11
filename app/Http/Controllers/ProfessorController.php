@@ -359,7 +359,7 @@ class ProfessorController extends Controller
     }
     function ResponeForMyMeetingToAttend(Request $request, $id_user){
         if ($request->response == 'refuse') {
-            $rendez_vous = DB::update('update rendez_vous set response = ? where id = ?', [$request->response, $request->id_rendezVous]);
+            $rendez_vous = DB::delete('delete from rendez_vous where id = ?', [$request->id_rendezVous]);
     
             return response()->json([
                 'status' => 'success',
