@@ -149,10 +149,10 @@ class AuthController extends Controller
             'message' => 'User not found.',
         ]);
     }
-    public function updatePassword(Request $request,$user){
+    public function updatePassword(Request $request, $id_user){
         $newPassword = $request->input('password');
         $update = DB::table('users')
-            ->where('id', $user->id)
+            ->where('id', $id_user)
             ->update(['password' => $newPassword]); //
         return response()->json([
             'status'=>'200',
