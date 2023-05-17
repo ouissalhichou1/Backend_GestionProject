@@ -74,7 +74,6 @@ class ProfessorController extends Controller
         ]);
     }
     function aboutGroup(Request $request,$id_group){
-        echo 'fuck you';
          if(!$id_group) {
              return response()->json([
                  'status' => '400',
@@ -216,7 +215,7 @@ class ProfessorController extends Controller
                  'error' => $e->getMessage(),
              ]);
          }
-     }
+    }
     function ResponseforApplication(Request $request, $id_user) {
         $id_application = $request->id_application;
         $response = $request->response;
