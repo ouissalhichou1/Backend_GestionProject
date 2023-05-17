@@ -421,7 +421,19 @@ class StudentController extends Controller
         }, $id_group);
     
         if ($id_group) {
-            $applications_exists = DB::select('select * from applications where id_project = ? and id_group = ?', [$project, $id_group[0]['id']]);
+            $group_id = $id_group[0]['id'];
+    
+            $applications_count = DB::select('select count(*) as total_applications from applications where id_group = ?', [$group_id]);
+            $applications_count = $applications_count[0]->total_applications;
+    
+            if ($applications_count >= 3) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sorry, you have already applied to 3 projects.',
+                ]);
+            }
+    
+            $applications_exists = DB::select('select * from applications where id_project = ? and id_group = ?', [$project, $group_id]);
     
             if ($applications_exists) {
                 return response()->json([
@@ -431,9 +443,7 @@ class StudentController extends Controller
             } else {
                 $group_data = array_slice($id_group[0], 1, null, true);
                 $nonEmptyValues = array_filter($group_data);
-                $nbrOfMembers = count($nonEmptyValues);
-                $nbrOfMembers--;
-                $nbrOfMembers--;
+                $nbrOfMembers = count($nonEmptyValues); 
                 $nbrPersonne = DB::select('select NbrPersonnes from projects where id = ?', [$project]);
                 $nbrPersonne = array_map(function ($value) {
                     return (array) $value;
@@ -442,7 +452,7 @@ class StudentController extends Controller
                 if ($nbrOfMembers == $nbrPersonne[0]['NbrPersonnes']) {
                     $application = new Application();
                     $application->id_project = $request->id_project;
-                    $application->id_group = $id_group[0]['id'];
+                    $application->id_group = $group_id;
                     $application->save();
     
                     return response()->json([
@@ -462,7 +472,8 @@ class StudentController extends Controller
                 'message' => 'Sorry, you are not authorized to apply to projects because you are not an admin.',
             ]);
         }
-    } 
+    }
+    
     function GetMyApplications(Request $request, $id_user) {
         $id_group = DB::select('select id from groups where id_group_admin = ? or id_user2 = ? or id_user3 = ? or id_user4 = ? or id_user5 = ?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
     
