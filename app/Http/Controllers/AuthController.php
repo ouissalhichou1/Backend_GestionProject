@@ -153,7 +153,7 @@ class AuthController extends Controller
         $newPassword = $request->input('password');
         $update = DB::table('users')
             ->where('id', $id_user)
-            ->update(['password' => $newPassword]); //
+            ->update(['password' => Hash::make($newPassword)]); //
         return response()->json([
             'status'=>'200',
             'message'=>'good',
