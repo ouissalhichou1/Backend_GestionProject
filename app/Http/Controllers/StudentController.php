@@ -473,7 +473,6 @@ class StudentController extends Controller
             ]);
         }
     }
-    
     function GetMyApplications(Request $request, $id_user) {
         $id_group = DB::select('select id from groups where id_group_admin = ? or id_user2 = ? or id_user3 = ? or id_user4 = ? or id_user5 = ?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
     
