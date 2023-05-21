@@ -443,7 +443,7 @@ class StudentController extends Controller
             } else {
                 $group_data = array_slice($id_group[0], 1, null, true);
                 $nonEmptyValues = array_filter($group_data);
-                $nbrOfMembers = count($nonEmptyValues); 
+                $nbrOfMembers = count($nonEmptyValues)-2; 
                 $nbrPersonne = DB::select('select NbrPersonnes from projects where id = ?', [$project]);
                 $nbrPersonne = array_map(function ($value) {
                     return (array) $value;

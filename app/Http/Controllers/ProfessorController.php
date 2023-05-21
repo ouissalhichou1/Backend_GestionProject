@@ -73,148 +73,210 @@ class ProfessorController extends Controller
             'applications' => $results,
         ]);
     }
-    function aboutGroup(Request $request,$id_group){
-         if(!$id_group) {
-             return response()->json([
-                 'status' => '400',
-                 'message' => 'Invalid group id',
-             ]);
-         }
-         try {
-             // Query the database for the group information
-             $results = DB::table('groups')
-                 ->leftJoin('users as member1', 'member1.id', '=', 'groups.id_group_admin')
-                 ->leftJoin('file as file1', function ($join) {
-                     $join->on('file1.user_id', '=', 'member1.id')
-                         ->where('file1.type', '=', 'releve_note');
-                 })
-                 ->leftJoin('users as member2', 'member2.id', '=', 'groups.id_user2')
-                 ->leftJoin('file as file2', function ($join) {
-                     $join->on('file2.user_id', '=', 'member2.id')
-                         ->where('file2.type', '=', 'releve_note');
-                 })
-                 ->leftJoin('users as member3', 'member3.id', '=', 'groups.id_user3')
-                 ->leftJoin('file as file3', function ($join) {
-                     $join->on('file3.user_id', '=', 'member3.id')
-                         ->where('file3.type', '=', 'releve_note');
-                 })
-                 ->leftJoin('users as member4', 'member4.id', '=', 'groups.id_user4')
-                 ->leftJoin('file as file4', function ($join) {
-                     $join->on('file4.user_id', '=', 'member4.id')
-                         ->where('file4.type', '=', 'releve_note');
-                 })
-                 ->leftJoin('users as member5', 'member5.id', '=', 'groups.id_user5')
-                 ->leftJoin('file as file5', function ($join) {
-                     $join->on('file5.user_id', '=', 'member5.id')
-                         ->where('file5.type', '=', 'releve_note');
-                 })
-                 ->select(
-                     'groups.id as group_id',
-                     'member1.name as name_1',
-                     'member1.surname as surname_1',
-                     'member1.email as email_1',
-                     'file1.path as file_path_1',
-                     'member2.name as name_2',
-                     'member2.surname as surname_2',
-                     'member2.email as email_2',
-                     'file2.path as file_path_2',
-                     'member3.name as name_3',
-                     'member3.surname as surname_3',
-                     'member3.email as email_3',
-                     'file3.path as file_path_3',
-                     'member4.name as name_4',
-                     'member4.surname as surname_4',
-                     'member4.email as email_4',
-                     'file4.path as file_path_4',
-                     'member5.name as name_5',
-                     'member5.surname as surname_5',
-                     'member5.email as email_5',
-                     'file5.path as file_path_5'
-                 )
-                 ->where('groups.id', $id_group)
-                 ->get();
-         
-             // Check if any results were returned
-             if($results->count() == 0) {
-                 return response()->json([
-                     'status' => '404',
-                     'message' => 'No data found for the group',
-                 ]);
-             }
-         
-             // Create an empty array to store the member information
-             $members = [];
-         
-             // Loop through each record in the results and extract the member information
-             foreach($results as $result) {
-                 // Extract the member information from the record
-                 $member = [
-                     'name' => $result->name_1,
-                     'surname' => $result->surname_1,
-                     'email' => $result->email_1,
-                     'file_path' => $result->file_path_1
-                 ];
-         
-                 // Add the member information to the members array
-                 $members[] = $member;
-         
-                 // Repeat the process for each additional member in the group (up to 5 members total)
-                 if($result->name_2) {
-                     $member = [
-                         'name' => $result->name_2,
-                         'surname' => $result->surname_2,
-                         'email' => $result->email_2,
-                         'file_path' => $result->file_path_2,
-                     ];
-                     $members[] = $member;
-                 }
-         
-                 if($result->name_3) {
-                     $member = [
-                         'name' => $result->name_3,
-                         'surname' => $result->surname_3,
-                         'email' => $result->email_3,
-                         'file_path' => $result->file_path_3,
-                     ];
-                     $members[] = $member;
-                 }
-         
-                 if($result->name_4) {
-                     $member = [
-                         'name' => $result->name_4,
-                         'surname' => $result->surname_4,
-                         'email' => $result->email_4,
-                         'file_path' => $result->file_path_4,
-                     ];
-                     $members[] = $member;
-                 }
-         
-                 if($result->name_5) {
-                     $member = [
-                         'name' => $result->name_5,
-                         'surname' => $result->surname_5,
-                         'email' => $result->email_5,
-                         'file_path' => $result->file_path_5,
-                     ];
-                     $members[] = $member;
-                 }
-             }
-         
-             // Return the member information as part of the response
-             return response()->json([
-                 'status' => '200',
-                 'message' => 'Group fetched successfully',
-                 'members' => $members,
-             ]);
-         
-         } catch (Exception $e) {
-             // Log error or return error message
-             return response()->json([
-                 'status' => '500',
-                 'message' => 'Error fetching data for the group',
-                 'error' => $e->getMessage(),
-             ]);
-         }
+    function aboutGroup(Request $request, $id_group){
+        if (!$id_group) {
+            return response()->json([
+                'status' => '400',
+                'message' => 'Invalid group id',
+            ]);
+        }
+    
+        try {
+            // Query the database for the group information
+            $results = DB::table('groups')
+                ->leftJoin('users as member1', 'member1.id', '=', 'groups.id_group_admin')
+                ->leftJoin('file as file1', function ($join) {
+                    $join->on('file1.user_id', '=', 'member1.id')
+                        ->where(function ($query) {
+                            $query->where('file1.type', '=', 'releve_note')
+                                ->orWhere('file1.type', '=', 'CV');
+                        });
+                })
+                ->leftJoin('users as member2', 'member2.id', '=', 'groups.id_user2')
+                ->leftJoin('file as file2', function ($join) {
+                    $join->on('file2.user_id', '=', 'member2.id')
+                        ->where(function ($query) {
+                            $query->where('file2.type', '=', 'releve_note')
+                                ->orWhere('file2.type', '=', 'CV');
+                        });
+                })
+                ->leftJoin('users as member3', 'member3.id', '=', 'groups.id_user3')
+                ->leftJoin('file as file3', function ($join) {
+                    $join->on('file3.user_id', '=', 'member3.id')
+                        ->where(function ($query) {
+                            $query->where('file3.type', '=', 'releve_note')
+                                ->orWhere('file3.type', '=', 'CV');
+                        });
+                })
+                ->leftJoin('users as member4', 'member4.id', '=', 'groups.id_user4')
+                ->leftJoin('file as file4', function ($join) {
+                    $join->on('file4.user_id', '=', 'member4.id')
+                        ->where(function ($query) {
+                            $query->where('file4.type', '=', 'releve_note')
+                                ->orWhere('file4.type', '=', 'CV');
+                        });
+                })
+                ->leftJoin('users as member5', 'member5.id', '=', 'groups.id_user5')
+                ->leftJoin('file as file5', function ($join) {
+                    $join->on('file5.user_id', '=', 'member5.id')
+                        ->where(function ($query) {
+                            $query->where('file5.type', '=', 'releve_note')
+                                ->orWhere('file5.type', '=', 'CV');
+                        });
+                })
+                ->select(
+                    'groups.id as group_id',
+                    'member1.name as name_1',
+                    'member1.surname as surname_1',
+                    'member1.email as email_1',
+                    'file1.path as file_path_1',
+                    'member2.name as name_2',
+                    'member2.surname as surname_2',
+                    'member2.email as email_2',
+                    'file2.path as file_path_2',
+                    'member3.name as name_3',
+                    'member3.surname as surname_3',
+                    'member3.email as email_3',
+                    'file3.path as file_path_3',
+                    'member4.name as name_4',
+                    'member4.surname as surname_4',
+                    'member4.email as email_4',
+                    'file4.path as file_path_4',
+                    'member5.name as name_5',
+                    'member5.surname as surname_5',
+                    'member5.email as email_5',
+                    'file5.path as file_path_5',
+                    'file5.type as file_type_5'
+                )
+                ->where('groups.id', $id_group)
+                ->get();
+    
+            // Check if any results were returned
+            if ($results->count() == 0) {
+                return response()->json([
+                    'status' => '404',
+                    'message' => 'No data found for the group',
+                ]);
+            }
+    
+            // Create an empty array to store the member information
+            $members = [];
+    
+            // Loop through each record in the results and extract the member information
+            foreach ($results as $result) {
+                // Extract the member information from the record
+                $member = [
+                    'name' => $result->name_1,
+                    'surname' => $result->surname_1,
+                    'email' => $result->email_1,
+                    'files' => [
+                        [
+                            'file_path' => $result->file_path_1,
+                            'file_type' => 'releve_note',
+                        ],
+                        [
+                            'file_path' => $result->file_path_1,
+                            'file_type' => 'CV',
+                        ],
+                    ],
+                ];
+    
+                // Add the member information to the members array
+                $members[] = $member;
+    
+                // Repeat the process for each additional member in the group (up to 5 members total)
+                if ($result->name_2) {
+                    $member = [
+                        'name' => $result->name_2,
+                        'surname' => $result->surname_2,
+                        'email' => $result->email_2,
+                        'files' => [
+                            [
+                                'file_path' => $result->file_path_2,
+                                'file_type' => 'releve_note',
+                            ],
+                            [
+                                'file_path' => $result->file_path_2,
+                                'file_type' => 'CV',
+                            ],
+                        ],
+                    ];
+                    $members[] = $member;
+                }
+    
+                if ($result->name_3) {
+                    $member = [
+                        'name' => $result->name_3,
+                        'surname' => $result->surname_3,
+                        'email' => $result->email_3,
+                        'files' => [
+                            [
+                                'file_path' => $result->file_path_3,
+                                'file_type' => 'releve_note',
+                            ],
+                            [
+                                'file_path' => $result->file_path_3,
+                                'file_type' => 'CV',
+                            ],
+                        ],
+                    ];
+                    $members[] = $member;
+                }
+    
+                if ($result->name_4) {
+                    $member = [
+                        'name' => $result->name_4,
+                        'surname' => $result->surname_4,
+                        'email' => $result->email_4,
+                        'files' => [
+                            [
+                                'file_path' => $result->file_path_4,
+                                'file_type' => 'releve_note',
+                            ],
+                            [
+                                'file_path' => $result->file_path_4,
+                                'file_type' => 'CV',
+                            ],
+                        ],
+                    ];
+                    $members[] = $member;
+                }
+    
+                if ($result->name_5) {
+                    $member = [
+                        'name' => $result->name_5,
+                        'surname' => $result->surname_5,
+                        'email' => $result->email_5,
+                        'files' => [
+                            [
+                                'file_path' => $result->file_path_5,
+                                'file_type' => 'releve_note',
+                            ],
+                            [
+                                'file_path' => $result->file_path_5,
+                                'file_type' => 'CV',
+                            ],
+                        ],
+                    ];
+                    $members[] = $member;
+                }
+            }
+    
+            // Return the member information as part of the response
+            return response()->json([
+                'status' => '200',
+                'message' => 'Group fetched successfully',
+                'members' => $members,
+            ]);
+    
+        } catch (Exception $e) {
+            // Log error or return error message
+            return response()->json([
+                'status' => '500',
+                'message' => 'Error fetching data for the group',
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
     function ResponseforApplication(Request $request, $id_user) {
         $id_application = $request->id_application;
