@@ -413,6 +413,7 @@ class StudentController extends Controller
             'data' => $data,
         ]);
     }        
+    // change this function to check the CV and progress
     function ApplyToProject(Request $request, $id_user){
         $project = $request->id_project;
         $id_group = DB::select('select * from groups where id_group_admin = ?', [$id_user]);
@@ -792,7 +793,7 @@ class StudentController extends Controller
         $userFiliere = User::findOrFail($userId)->filiere;
     
         // Retrieve the video files that match the specified conditions
-        $files = File::where('type', 'progression')
+        $files = File::where('type', 'Progression')
                      ->whereHas('user', function ($query) use ($userFiliere) {
                          $query->where('filiere', $userFiliere);
                      })

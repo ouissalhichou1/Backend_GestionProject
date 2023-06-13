@@ -73,6 +73,7 @@ class ProfessorController extends Controller
             'applications' => $results,
         ]);
     }
+    //gghjk
     function aboutGroup(Request $request, $id_group){
         if (!$id_group) {
             return response()->json([
@@ -88,7 +89,7 @@ class ProfessorController extends Controller
                 ->leftJoin('file as file1', function ($join) {
                     $join->on('file1.user_id', '=', 'member1.id')
                         ->where(function ($query) {
-                            $query->where('file1.type', '=', 'releve_note')
+                            $query->where('file1.type', '=', 'Releve_Note')
                                 ->orWhere('file1.type', '=', 'CV');
                         });
                 })
@@ -96,7 +97,7 @@ class ProfessorController extends Controller
                 ->leftJoin('file as file2', function ($join) {
                     $join->on('file2.user_id', '=', 'member2.id')
                         ->where(function ($query) {
-                            $query->where('file2.type', '=', 'releve_note')
+                            $query->where('file2.type', '=', 'Releve_Note')
                                 ->orWhere('file2.type', '=', 'CV');
                         });
                 })
@@ -104,7 +105,7 @@ class ProfessorController extends Controller
                 ->leftJoin('file as file3', function ($join) {
                     $join->on('file3.user_id', '=', 'member3.id')
                         ->where(function ($query) {
-                            $query->where('file3.type', '=', 'releve_note')
+                            $query->where('file3.type', '=', 'Releve_Note')
                                 ->orWhere('file3.type', '=', 'CV');
                         });
                 })
@@ -112,7 +113,7 @@ class ProfessorController extends Controller
                 ->leftJoin('file as file4', function ($join) {
                     $join->on('file4.user_id', '=', 'member4.id')
                         ->where(function ($query) {
-                            $query->where('file4.type', '=', 'releve_note')
+                            $query->where('file4.type', '=', 'Releve_Note')
                                 ->orWhere('file4.type', '=', 'CV');
                         });
                 })
@@ -120,7 +121,7 @@ class ProfessorController extends Controller
                 ->leftJoin('file as file5', function ($join) {
                     $join->on('file5.user_id', '=', 'member5.id')
                         ->where(function ($query) {
-                            $query->where('file5.type', '=', 'releve_note')
+                            $query->where('file5.type', '=', 'Releve_Note')
                                 ->orWhere('file5.type', '=', 'CV');
                         });
                 })
@@ -172,7 +173,7 @@ class ProfessorController extends Controller
                     'files' => [
                         [
                             'file_path' => $result->file_path_1,
-                            'file_type' => 'releve_note',
+                            'file_type' => 'Releve_Note',
                         ],
                         [
                             'file_path' => $result->file_path_1,
@@ -482,7 +483,7 @@ class ProfessorController extends Controller
         // Retrieve the user's filliere
         $userFilliere = $request->input('filiere');
         // Retrieve the video files that match the specified conditions
-        $files = File::where('type', 'progression')
+        $files = File::where('type', 'Progression')
                      ->whereHas('user', function ($query) use ($userFiliere) {
                          $query->where('filiere', $userFiliere);
                      })
