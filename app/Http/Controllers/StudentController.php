@@ -413,16 +413,15 @@ class StudentController extends Controller
             'data' => $data,
         ]);
     }        
-    // change this function to check the CV and progress
     function ApplyToProject(Request $request, $id_user){
         $project = $request->id_project;
-        $id_group = DB::select('select * from groups where id_group_admin = ?', [$id_user]);
-        $id_group = array_map(function ($value) {
+        $group = DB::select('select * from groups where id_group_admin = ?', [$id_user]);
+        $group = array_map(function ($value) {
             return (array) $value;
-        }, $id_group);
+        }, $group);
     
-        if ($id_group) {
-            $group_id = $id_group[0]['id'];
+        if ($group) {
+            $group_id = $group[0]['id'];
     
             $applications_count = DB::select('select count(*) as total_applications from applications where id_group = ?', [$group_id]);
             $applications_count = $applications_count[0]->total_applications;
@@ -442,9 +441,29 @@ class StudentController extends Controller
                     'message' => 'Sorry, you have already applied to this project.',
                 ]);
             } else {
-                $group_data = array_slice($id_group[0], 1, null, true);
-                $nonEmptyValues = array_filter($group_data);
-                $nbrOfMembers = count($nonEmptyValues)-2; 
+                $members = [];
+                for ($i = 2; $i <= 5; $i++) {
+                    $memberId = $group[0]["id_user{$i}"];
+                    if ($memberId) {
+                        $members[] = $memberId;
+                    }
+                }
+    
+                // Check if all members have a CV and Releve Note file
+                foreach ($members as $memberId) {
+                    $cv_exists = DB::select('select * from file where user_id = ? and type = ?', [$memberId, 'CV']);
+                    $releve_exists = DB::select('select * from file where user_id = ? and type = ?', [$memberId, 'Releve_Note']);
+    
+                    if (!$cv_exists || !$releve_exists) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Sorry, you cannot apply to this project because not all members have a CV and Releve Note.',
+                        ]);
+                    }
+                }
+    
+                $nbrOfMembers = count($members);
+    
                 $nbrPersonne = DB::select('select NbrPersonnes from projects where id = ?', [$project]);
                 $nbrPersonne = array_map(function ($value) {
                     return (array) $value;
@@ -701,10 +720,17 @@ class StudentController extends Controller
         }
     }    
     function GetAnnonceFromSuperviser(Request $request, $id_user){
-        $id_group = DB::select('select * from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user,$id_user,$id_user,$id_user,$id_user]);
-        $id_group = array_map(function ($value) {return (array)$value;}, $id_group);
-        $id_group = $id_group[0]["id"];
-        $result = DB::select('select * from annonces where group_id = ?',[$id_group]);
+        $id_group = DB::select('SELECT id FROM groups WHERE id_group_admin = ? OR id_user2 = ? OR id_user3 = ? OR id_user4 = ? OR id_user5 = ?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
+        $id_group = $id_group[0]->id;
+    
+        $id_project = DB::select('SELECT id_project FROM applications WHERE id_group = ?', [$id_group]);
+        $id_project = $id_project[0]->id_project;
+    
+        $id_supervisor = DB::select('SELECT id_user FROM projects WHERE id = ?', [$id_project]);
+        $id_supervisor = $id_supervisor[0]->id_user;
+    
+        $result = DB::select('SELECT * FROM annonces WHERE group_id = ? AND id_user = ?', [$id_group, $id_supervisor]);
+    
         return response()->json([
             'status' => 'annonce fetched',
             'group' => $result,
@@ -809,7 +835,29 @@ class StudentController extends Controller
             'video_urls' => $videoUrls,
         ]);
     }
-    
+    function SendAnnonceToMyGroup(Request $request, $id_user){
+        $id_group = DB::select('select id from groups where id_group_admin =? or id_user2 =? or id_user3 =? or id_user4 =? or id_user5 =?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
+        $annonce = new Annonce;
+        $annonce->title = $request->input('title');
+        $annonce->message = $request->input('message');
+        $annonce->group_id = $id_group;
+        $annonce->user_id = $id_user;
+        $annonce->save();
+        return response()->json([
+            'status' => '200',
+            'message'=>'annonce created successfully',
+            'project' => $annonce,
+        ]);
+    }
+    function GetAnnonceFromMyGroup(Request $request, $id_user){
+        $id_group = DB::select('SELECT id FROM groups WHERE id_group_admin = ? OR id_user2 = ? OR id_user3 = ? OR id_user4 = ? OR id_user5 = ?', [$id_user, $id_user, $id_user, $id_user, $id_user]);
+        $id_group = $id_group[0]->id;
+        $result = DB::select('SELECT * FROM annonces WHERE group_id = ?', [$id_group]);
+        return response()->json([
+            'status' => 'annonce fetched',
+            'group' => $result,
+        ]);
+    }
     
 
 

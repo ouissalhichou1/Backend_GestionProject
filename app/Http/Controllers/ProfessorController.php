@@ -73,7 +73,6 @@ class ProfessorController extends Controller
             'applications' => $results,
         ]);
     }
-    //gghjk
     function aboutGroup(Request $request, $id_group){
         if (!$id_group) {
             return response()->json([
@@ -86,179 +85,121 @@ class ProfessorController extends Controller
             // Query the database for the group information
             $results = DB::table('groups')
                 ->leftJoin('users as member1', 'member1.id', '=', 'groups.id_group_admin')
-                ->leftJoin('file as file1', function ($join) {
-                    $join->on('file1.user_id', '=', 'member1.id')
-                        ->where(function ($query) {
-                            $query->where('file1.type', '=', 'Releve_Note')
-                                ->orWhere('file1.type', '=', 'CV');
-                        });
+                ->leftJoin('file as file1_cv', function ($join) {
+                    $join->on('file1_cv.user_id', '=', 'member1.id')
+                        ->where('file1_cv.type', 'CV');
+                })
+                ->leftJoin('file as file1_releve', function ($join) {
+                    $join->on('file1_releve.user_id', '=', 'member1.id')
+                        ->where('file1_releve.type', 'Releve_Note');
                 })
                 ->leftJoin('users as member2', 'member2.id', '=', 'groups.id_user2')
-                ->leftJoin('file as file2', function ($join) {
-                    $join->on('file2.user_id', '=', 'member2.id')
-                        ->where(function ($query) {
-                            $query->where('file2.type', '=', 'Releve_Note')
-                                ->orWhere('file2.type', '=', 'CV');
-                        });
+                ->leftJoin('file as file2_cv', function ($join) {
+                    $join->on('file2_cv.user_id', '=', 'member2.id')
+                        ->where('file2_cv.type', 'CV');
+                })
+                ->leftJoin('file as file2_releve', function ($join) {
+                    $join->on('file2_releve.user_id', '=', 'member2.id')
+                        ->where('file2_releve.type', 'Releve_Note');
                 })
                 ->leftJoin('users as member3', 'member3.id', '=', 'groups.id_user3')
-                ->leftJoin('file as file3', function ($join) {
-                    $join->on('file3.user_id', '=', 'member3.id')
-                        ->where(function ($query) {
-                            $query->where('file3.type', '=', 'Releve_Note')
-                                ->orWhere('file3.type', '=', 'CV');
-                        });
+                ->leftJoin('file as file3_cv', function ($join) {
+                    $join->on('file3_cv.user_id', '=', 'member3.id')
+                        ->where('file3_cv.type', 'CV');
+                })
+                ->leftJoin('file as file3_releve', function ($join) {
+                    $join->on('file3_releve.user_id', '=', 'member3.id')
+                        ->where('file3_releve.type', 'Releve_Note');
                 })
                 ->leftJoin('users as member4', 'member4.id', '=', 'groups.id_user4')
-                ->leftJoin('file as file4', function ($join) {
-                    $join->on('file4.user_id', '=', 'member4.id')
-                        ->where(function ($query) {
-                            $query->where('file4.type', '=', 'Releve_Note')
-                                ->orWhere('file4.type', '=', 'CV');
-                        });
+                ->leftJoin('file as file4_cv', function ($join) {
+                    $join->on('file4_cv.user_id', '=', 'member4.id')
+                        ->where('file4_cv.type', 'CV');
+                })
+                ->leftJoin('file as file4_releve', function ($join) {
+                    $join->on('file4_releve.user_id', '=', 'member4.id')
+                        ->where('file4_releve.type', 'Releve_Note');
                 })
                 ->leftJoin('users as member5', 'member5.id', '=', 'groups.id_user5')
-                ->leftJoin('file as file5', function ($join) {
-                    $join->on('file5.user_id', '=', 'member5.id')
-                        ->where(function ($query) {
-                            $query->where('file5.type', '=', 'Releve_Note')
-                                ->orWhere('file5.type', '=', 'CV');
-                        });
+                ->leftJoin('file as file5_cv', function ($join) {
+                    $join->on('file5_cv.user_id', '=', 'member5.id')
+                        ->where('file5_cv.type', 'CV');
+                })
+                ->leftJoin('file as file5_releve', function ($join) {
+                    $join->on('file5_releve.user_id', '=', 'member5.id')
+                        ->where('file5_releve.type', 'Releve_Note');
                 })
                 ->select(
                     'groups.id as group_id',
                     'member1.name as name_1',
                     'member1.surname as surname_1',
                     'member1.email as email_1',
-                    'file1.path as file_path_1',
+                    'file1_cv.path as file_path_CV_1',
+                    'file1_releve.path as file_path_releve_1',
                     'member2.name as name_2',
                     'member2.surname as surname_2',
                     'member2.email as email_2',
-                    'file2.path as file_path_2',
+                    'file2_cv.path as file_path_CV_2',
+                    'file2_releve.path as file_path_releve_2',
                     'member3.name as name_3',
                     'member3.surname as surname_3',
                     'member3.email as email_3',
-                    'file3.path as file_path_3',
+                    'file3_cv.path as file_path_CV_3',
+                    'file3_releve.path as file_path_releve_3',
                     'member4.name as name_4',
                     'member4.surname as surname_4',
                     'member4.email as email_4',
-                    'file4.path as file_path_4',
+                    'file4_cv.path as file_path_CV_4',
+                    'file4_releve.path as file_path_releve_4',
                     'member5.name as name_5',
                     'member5.surname as surname_5',
                     'member5.email as email_5',
-                    'file5.path as file_path_5',
-                    'file5.type as file_type_5'
+                    'file5_cv.path as file_path_CV_5',
+                    'file5_releve.path as file_path_releve_5'
                 )
                 ->where('groups.id', $id_group)
-                ->get();
+                ->first();
     
-            // Check if any results were returned
-            if ($results->count() == 0) {
+            if (!$results) {
                 return response()->json([
                     'status' => '404',
-                    'message' => 'No data found for the group',
+                    'message' => 'Group not found',
                 ]);
             }
     
-            // Create an empty array to store the member information
+            // Build the members array and populate with member information
             $members = [];
+            for ($i = 1; $i <= 5; $i++) {
+                $name_key = 'name_' . $i;
+                $surname_key = 'surname_' . $i;
+                $email_key = 'email_' . $i;
+                $file_cv_key = 'file_path_CV_' . $i;
+                $file_releve_key = 'file_path_releve_' . $i;
     
-            // Loop through each record in the results and extract the member information
-            foreach ($results as $result) {
-                // Extract the member information from the record
-                $member = [
-                    'name' => $result->name_1,
-                    'surname' => $result->surname_1,
-                    'email' => $result->email_1,
-                    'files' => [
-                        [
-                            'file_path' => $result->file_path_1,
-                            'file_type' => 'Releve_Note',
-                        ],
-                        [
-                            'file_path' => $result->file_path_1,
+                if ($results->$name_key) {
+                    $member = [
+                        'name' => $results->$name_key,
+                        'surname' => $results->$surname_key,
+                        'email' => $results->$email_key,
+                        'files' => [],
+                    ];
+    
+                    // Add the CV file path if available
+                    if ($results->$file_cv_key) {
+                        $member['files'][] = [
+                            'file_path' => $results->$file_cv_key,
                             'file_type' => 'CV',
-                        ],
-                    ],
-                ];
+                        ];
+                    }
     
-                // Add the member information to the members array
-                $members[] = $member;
+                    // Add the Releve_Note file path if available
+                    if ($results->$file_releve_key) {
+                        $member['files'][] = [
+                            'file_path' => $results->$file_releve_key,
+                            'file_type' => 'Releve_Note',
+                        ];
+                    }
     
-                // Repeat the process for each additional member in the group (up to 5 members total)
-                if ($result->name_2) {
-                    $member = [
-                        'name' => $result->name_2,
-                        'surname' => $result->surname_2,
-                        'email' => $result->email_2,
-                        'files' => [
-                            [
-                                'file_path' => $result->file_path_2,
-                                'file_type' => 'releve_note',
-                            ],
-                            [
-                                'file_path' => $result->file_path_2,
-                                'file_type' => 'CV',
-                            ],
-                        ],
-                    ];
-                    $members[] = $member;
-                }
-    
-                if ($result->name_3) {
-                    $member = [
-                        'name' => $result->name_3,
-                        'surname' => $result->surname_3,
-                        'email' => $result->email_3,
-                        'files' => [
-                            [
-                                'file_path' => $result->file_path_3,
-                                'file_type' => 'releve_note',
-                            ],
-                            [
-                                'file_path' => $result->file_path_3,
-                                'file_type' => 'CV',
-                            ],
-                        ],
-                    ];
-                    $members[] = $member;
-                }
-    
-                if ($result->name_4) {
-                    $member = [
-                        'name' => $result->name_4,
-                        'surname' => $result->surname_4,
-                        'email' => $result->email_4,
-                        'files' => [
-                            [
-                                'file_path' => $result->file_path_4,
-                                'file_type' => 'releve_note',
-                            ],
-                            [
-                                'file_path' => $result->file_path_4,
-                                'file_type' => 'CV',
-                            ],
-                        ],
-                    ];
-                    $members[] = $member;
-                }
-    
-                if ($result->name_5) {
-                    $member = [
-                        'name' => $result->name_5,
-                        'surname' => $result->surname_5,
-                        'email' => $result->email_5,
-                        'files' => [
-                            [
-                                'file_path' => $result->file_path_5,
-                                'file_type' => 'releve_note',
-                            ],
-                            [
-                                'file_path' => $result->file_path_5,
-                                'file_type' => 'CV',
-                            ],
-                        ],
-                    ];
                     $members[] = $member;
                 }
             }
@@ -269,7 +210,6 @@ class ProfessorController extends Controller
                 'message' => 'Group fetched successfully',
                 'members' => $members,
             ]);
-    
         } catch (Exception $e) {
             // Log error or return error message
             return response()->json([
