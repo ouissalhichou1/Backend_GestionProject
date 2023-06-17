@@ -11,6 +11,9 @@ use App\Models\RendezVous;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
+
 
 class StudentController extends Controller
 {
@@ -812,7 +815,7 @@ class StudentController extends Controller
             'status' => 'success',
             'file' => $file,
         ]);
-    }
+    } 
     function GetAllProgressionVideo(Request $request,$id_user){
         $userId = $id_user;
         // Retrieve the user's filliere

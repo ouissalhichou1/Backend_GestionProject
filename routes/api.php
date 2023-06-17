@@ -46,6 +46,7 @@ Route::get('/Project/All/{id_user}',[ProfessorController::class,'GetMyProjects']
 Route::post('/Project/Modification/{id_user}',[ProfessorController::class,'ModifyProject']);
 Route::get('/Project/Applications/All/{id_user}',[ProfessorController::class,'GetApplicationsForMyProjects']);
 Route::get('/Group/About/{id_group}',[ProfessorController::class,'aboutGroup']);
+Route::get('/About/files/Upload', [ProfessorController::class, 'downloadFile']);
 Route::get('/Groups/All/{id_user}',[ProfessorController::class,'GetMyGroups']);
 Route::post('/RendezVous/{id_user}',[ProfessorController::class,'CreateMeeting']);
 Route::get('/Sujets/All/{id_user}',[ProfessorController::class,'DropDownSujets']);

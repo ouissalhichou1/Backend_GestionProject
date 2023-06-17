@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\CustomResponse;
 use App\Models\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Database\QueryException;
 
 class ProfessorController extends Controller
@@ -73,7 +75,8 @@ class ProfessorController extends Controller
             'applications' => $results,
         ]);
     }
-    function aboutGroup(Request $request, $id_group){
+     function aboutGroup(Request $request, $id_group)
+    {
         if (!$id_group) {
             return response()->json([
                 'status' => '400',
@@ -85,77 +88,32 @@ class ProfessorController extends Controller
             // Query the database for the group information
             $results = DB::table('groups')
                 ->leftJoin('users as member1', 'member1.id', '=', 'groups.id_group_admin')
-                ->leftJoin('file as file1_cv', function ($join) {
-                    $join->on('file1_cv.user_id', '=', 'member1.id')
-                        ->where('file1_cv.type', 'CV');
-                })
-                ->leftJoin('file as file1_releve', function ($join) {
-                    $join->on('file1_releve.user_id', '=', 'member1.id')
-                        ->where('file1_releve.type', 'Releve_Note');
-                })
                 ->leftJoin('users as member2', 'member2.id', '=', 'groups.id_user2')
-                ->leftJoin('file as file2_cv', function ($join) {
-                    $join->on('file2_cv.user_id', '=', 'member2.id')
-                        ->where('file2_cv.type', 'CV');
-                })
-                ->leftJoin('file as file2_releve', function ($join) {
-                    $join->on('file2_releve.user_id', '=', 'member2.id')
-                        ->where('file2_releve.type', 'Releve_Note');
-                })
                 ->leftJoin('users as member3', 'member3.id', '=', 'groups.id_user3')
-                ->leftJoin('file as file3_cv', function ($join) {
-                    $join->on('file3_cv.user_id', '=', 'member3.id')
-                        ->where('file3_cv.type', 'CV');
-                })
-                ->leftJoin('file as file3_releve', function ($join) {
-                    $join->on('file3_releve.user_id', '=', 'member3.id')
-                        ->where('file3_releve.type', 'Releve_Note');
-                })
                 ->leftJoin('users as member4', 'member4.id', '=', 'groups.id_user4')
-                ->leftJoin('file as file4_cv', function ($join) {
-                    $join->on('file4_cv.user_id', '=', 'member4.id')
-                        ->where('file4_cv.type', 'CV');
-                })
-                ->leftJoin('file as file4_releve', function ($join) {
-                    $join->on('file4_releve.user_id', '=', 'member4.id')
-                        ->where('file4_releve.type', 'Releve_Note');
-                })
                 ->leftJoin('users as member5', 'member5.id', '=', 'groups.id_user5')
-                ->leftJoin('file as file5_cv', function ($join) {
-                    $join->on('file5_cv.user_id', '=', 'member5.id')
-                        ->where('file5_cv.type', 'CV');
-                })
-                ->leftJoin('file as file5_releve', function ($join) {
-                    $join->on('file5_releve.user_id', '=', 'member5.id')
-                        ->where('file5_releve.type', 'Releve_Note');
-                })
                 ->select(
                     'groups.id as group_id',
                     'member1.name as name_1',
                     'member1.surname as surname_1',
                     'member1.email as email_1',
-                    'file1_cv.path as file_path_CV_1',
-                    'file1_releve.path as file_path_releve_1',
+                    'member1.apogee as apogee_1',
                     'member2.name as name_2',
                     'member2.surname as surname_2',
                     'member2.email as email_2',
-                    'file2_cv.path as file_path_CV_2',
-                    'file2_releve.path as file_path_releve_2',
+                    'member2.apogee as apogee_2',
                     'member3.name as name_3',
                     'member3.surname as surname_3',
                     'member3.email as email_3',
-                    'file3_cv.path as file_path_CV_3',
-                    'file3_releve.path as file_path_releve_3',
+                    'member3.apogee as apogee_3',
                     'member4.name as name_4',
                     'member4.surname as surname_4',
                     'member4.email as email_4',
-                    'file4_cv.path as file_path_CV_4',
-                    'file4_releve.path as file_path_releve_4',
+                    'member4.apogee as apogee_4',
                     'member5.name as name_5',
                     'member5.surname as surname_5',
                     'member5.email as email_5',
-                    'file5_cv.path as file_path_CV_5',
-                    'file5_releve.path as file_path_releve_5'
+                    'member5.apogee as apogee_5'
                 )
                 ->where('groups.id', $id_group)
                 ->first();
@@ -173,32 +131,15 @@ class ProfessorController extends Controller
                 $name_key = 'name_' . $i;
                 $surname_key = 'surname_' . $i;
                 $email_key = 'email_' . $i;
-                $file_cv_key = 'file_path_CV_' . $i;
-                $file_releve_key = 'file_path_releve_' . $i;
+                $apogee_key = 'apogee_' . $i;
     
                 if ($results->$name_key) {
                     $member = [
                         'name' => $results->$name_key,
                         'surname' => $results->$surname_key,
                         'email' => $results->$email_key,
-                        'files' => [],
+                        'apogee' => $results->$apogee_key,
                     ];
-    
-                    // Add the CV file path if available
-                    if ($results->$file_cv_key) {
-                        $member['files'][] = [
-                            'file_path' => $results->$file_cv_key,
-                            'file_type' => 'CV',
-                        ];
-                    }
-    
-                    // Add the Releve_Note file path if available
-                    if ($results->$file_releve_key) {
-                        $member['files'][] = [
-                            'file_path' => $results->$file_releve_key,
-                            'file_type' => 'Releve_Note',
-                        ];
-                    }
     
                     $members[] = $member;
                 }
@@ -219,6 +160,7 @@ class ProfessorController extends Controller
             ]);
         }
     }
+    
     function ResponseforApplication(Request $request, $id_user) {
         $id_application = $request->id_application;
         $response = $request->response;
@@ -436,6 +378,25 @@ class ProfessorController extends Controller
             'status' => 'success',
             'video_urls' => $videoUrls,
         ]);
+    }
+    public function downloadFile(Request $request , $apogee)
+    {
+        $user = DB::select('select id from users where apogee = ?', [$apogee]);
+        $type = 'CV';
+    
+        $file = File::where('user_id', $user[0]->id)->where('type', $type)->first();
+    
+        if (!$file) {
+            return response()->json(['error' => 'File not found.'], 404);
+        }
+    
+        $filePath = storage_path('app/' . $file->path);
+    
+        if (file_exists($filePath)) {
+            return response()->download($filePath, $file->name);
+        }
+    
+        return response()->json(['error' => 'File not found.'], 404);
     }
     
 
