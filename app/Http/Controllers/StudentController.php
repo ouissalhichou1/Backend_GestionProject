@@ -818,7 +818,6 @@ class StudentController extends Controller
     
         if ($request->input('type') == 'Progression') {
             $file->title = $request->input('title');
-            $file->description = $request->input('description');
         }
     
         $file->name = $fileName;
