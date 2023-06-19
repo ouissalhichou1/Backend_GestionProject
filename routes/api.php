@@ -46,7 +46,7 @@ Route::get('/Project/All/{id_user}',[ProfessorController::class,'GetMyProjects']
 Route::post('/Project/Modification/{id_user}',[ProfessorController::class,'ModifyProject']);
 Route::get('/Project/Applications/All/{id_user}',[ProfessorController::class,'GetApplicationsForMyProjects']);
 Route::get('/Group/About/{id_group}',[ProfessorController::class,'aboutGroup']);
-Route::get('/About/files/Upload', [ProfessorController::class, 'downloadFile']);
+Route::get('/About/files/download/{apogee}/{typefile}', [ProfessorController::class, 'downloadFile']);
 Route::get('/Groups/All/{id_user}',[ProfessorController::class,'GetMyGroups']);
 Route::post('/RendezVous/{id_user}',[ProfessorController::class,'CreateMeeting']);
 Route::get('/Sujets/All/{id_user}',[ProfessorController::class,'DropDownSujets']);
@@ -81,7 +81,8 @@ Route::get('/group/{id_user}',[StudentController::class,'GetGroupMembers']);
 Route::post('/response/group/{id_user}',[StudentController::class,'MyFinalResposeForApplication']);
 Route::get('/Meet/All/{id_user}',[StudentController::class,'GetMeetingToAttend']);
 Route::get('/RendezVous/{id_user}',[StudentController::class,'GetMyMeetings']);
-Route::post('/Annonce/create/{id_user}',[StudentController::class,'SendAnnonceToMyGroup']);
-Route::get('/Annonce/{id_user}',[StudentController::class,'GetAnnonceFromMyGroup']);
+Route::post('/Annonce/create/Group/{id_user}',[StudentController::class,'SendAnnonceToMyGroup']);
+Route::get('/Annonce/Group/{id_user}',[StudentController::class,'GetAnnonceFromMyGroup']);
+
 
 

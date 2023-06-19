@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('path');
             $table->string('type');
             $table->string('name');
+            $table->string('type');
+            $table->string('title')->nullable();
+            $table->string('description')->nullable();
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
             $table->timestamps();

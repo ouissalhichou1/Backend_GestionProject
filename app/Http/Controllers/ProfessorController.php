@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\File;
 use App\Models\Annonce;
 use App\Models\Project;
 use App\Models\RendezVous;
@@ -9,9 +10,9 @@ use Illuminate\Http\Request;
 use App\Models\CustomResponse;
 use App\Models\ExceptionHandler;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Database\QueryException;
 
 class ProfessorController extends Controller
 {
@@ -75,8 +76,7 @@ class ProfessorController extends Controller
             'applications' => $results,
         ]);
     }
-     function aboutGroup(Request $request, $id_group)
-    {
+    function aboutGroup(Request $request, $id_group){
         if (!$id_group) {
             return response()->json([
                 'status' => '400',
@@ -160,7 +160,24 @@ class ProfessorController extends Controller
             ]);
         }
     }
+    function downloadFile(Request $request , $apogee, $typefile){
+        $user = DB::select('select id from users where apogee = ?', [$apogee]);
+        $type = $typefile;
     
+        $file = File::where('user_id', $user[0]->id)->where('type', $type)->first();
+    
+        if (!$file) {
+            return response()->json(['error' => 'File not found.'], 404);
+        }
+    
+        $filePath = storage_path('app/' . $file->path);
+    
+        if (file_exists($filePath)) {
+            return response()->download($filePath, $file->name);
+        }
+    
+        return response()->json(['error' => 'File not found.'], 404);
+    }
     function ResponseforApplication(Request $request, $id_user) {
         $id_application = $request->id_application;
         $response = $request->response;
@@ -364,40 +381,34 @@ class ProfessorController extends Controller
     function GetAllProgressionVideo(Request $request) {
         // Retrieve the user's filliere
         $userFilliere = $request->input('filiere');
+        
         // Retrieve the video files that match the specified conditions
         $files = File::where('type', 'Progression')
-                     ->whereHas('user', function ($query) use ($userFiliere) {
-                         $query->where('filiere', $userFiliere);
+                     ->whereHas('user', function ($query) use ($userFilliere) {
+                         $query->where('filiere', $userFilliere);
                      })
-                     ->get();
-        // Extract the video URLs from the files
-        $videoUrls = $files->map(function ($file) {
-            return $file->path;
+                     ->get(['path', 'title', 'description']); // Retrieve path, title, and description columns
+        
+        // Extract the video URLs, title, and description from the files
+        $videoData = $files->map(function ($file) {
+            // Get the URL of the video file
+            $url = Storage::url($file->path);
+            
+            // Modify the data according to your needs
+            return [
+                'url' => $url,
+                'title' => $file->title,
+                'description' => $file->description,
+            ];
         });
+        
         return response()->json([
             'status' => 'success',
-            'video_urls' => $videoUrls,
+            'videos' => $videoData,
         ]);
     }
-    public function downloadFile(Request $request , $apogee)
-    {
-        $user = DB::select('select id from users where apogee = ?', [$apogee]);
-        $type = 'CV';
     
-        $file = File::where('user_id', $user[0]->id)->where('type', $type)->first();
     
-        if (!$file) {
-            return response()->json(['error' => 'File not found.'], 404);
-        }
-    
-        $filePath = storage_path('app/' . $file->path);
-    
-        if (file_exists($filePath)) {
-            return response()->download($filePath, $file->name);
-        }
-    
-        return response()->json(['error' => 'File not found.'], 404);
-    }
     
 
     
