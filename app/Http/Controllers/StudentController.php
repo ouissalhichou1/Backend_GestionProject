@@ -437,6 +437,13 @@ class StudentController extends Controller
         }
     
         $group_id = $group->id;
+            
+        if ($group->id_group_admin != $id_user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Sorry, you cannot apply to this project because you are not the group admin.',
+            ]);
+        }
     
         $applications_count = DB::select('SELECT COUNT(*) AS total_applications FROM applications WHERE id_group = ?', [$group_id]);
         $applications_count = $applications_count[0]->total_applications;
@@ -469,7 +476,6 @@ class StudentController extends Controller
         }
     
         $nbrOfMembers = count($members);
-        echo $nbrOfMembers;
         // Check if all members have a CV and Releve Note file
         foreach ($members as $memberId) {
             $cv_exists = DB::select('SELECT * FROM file WHERE user_id = ? AND type = ?', [$memberId, 'CV']);
@@ -829,26 +835,31 @@ class StudentController extends Controller
             'file' => $file,
         ]);
     }
-    function GetAllProgressionVideo(Request $request,$id_user){
+    function GetAllProgressionVideo(Request $request, $id_user){
         $userId = $id_user;
-        // Retrieve the user's filliere
+        
+        // Retrieve the user's filiere
         $userFiliere = User::findOrFail($userId)->filiere;
     
         // Retrieve the video files that match the specified conditions
         $files = File::where('type', 'Progression')
-                     ->whereHas('user', function ($query) use ($userFiliere) {
-                         $query->where('filiere', $userFiliere);
+                     ->whereHas('user', function ($query) use ($userFiliere, $id_user) {
+                         $query->where('filiere', $userFiliere)
+                               ->where('id', $id_user);
                      })
                      ->get();
     
-        // Extract the video URLs from the files
-        $videoUrls = $files->map(function ($file) {
-            return $file->path;
+        // Extract the video URLs and titles from the files
+        $videoData = $files->map(function ($file) {
+            return [
+                'url' => $file->path,
+                'title' => $file->title,
+            ];
         });
     
         return response()->json([
             'status' => 'success',
-            'video_urls' => $videoUrls,
+            'video_data' => $videoData,
         ]);
     }
     function SendAnnonceToMyGroup(Request $request, $id_user){

@@ -76,7 +76,7 @@ Route::post('/Task/Modify/{user_id}',[StudentController::class,'ModifyTask']);
 Route::post('/Task/delete/{user_id}',[StudentController::class,'DeleteTask']);
 Route::get('/Task/all/{user_id}',[StudentController::class,'GetMyTasks']);
 Route::post('/files/Upload/{id_user}', [StudentController::class, 'uploadFile']);
-Route::get('/files/Progression/all/{id_user}', [StudentController::class, 'GetAllProgressionVideo']);
+Route::get('/files/Progression/video/{id_user}', [StudentController::class, 'GetAllProgressionVideo']);
 Route::get('/group/{id_user}',[StudentController::class,'GetGroupMembers']);
 Route::post('/response/group/{id_user}',[StudentController::class,'MyFinalResposeForApplication']);
 Route::get('/Meet/All/{id_user}',[StudentController::class,'GetMeetingToAttend']);
